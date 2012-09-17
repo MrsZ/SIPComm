@@ -1,0 +1,48 @@
+﻿<Window x:Class="SIPComm.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	   xmlns:Properties="clr-namespace:SIPComm.Properties"
+        Title="MainWindow" Height="370" Width="210" KeyDown="Window_KeyDown_1" ResizeMode="NoResize" Closing="Window_Closing_1" Loaded="Window_Loaded_1" BorderThickness="2" WindowStyle="None" BorderBrush="#FF18AEAE" >
+    <Grid Margin="0,0,0,0">
+		<Grid.RowDefinitions>
+			<RowDefinition Height="20"/>
+			<RowDefinition Height="50"/>
+			<RowDefinition Height="210"/>
+			<RowDefinition Height="40"/>
+			<RowDefinition Height="*"/>
+		</Grid.RowDefinitions>
+		<Grid.Background>
+			<LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+				<GradientStop Color="#FF01111D" Offset="0"/>
+				<GradientStop Color="#FF1F3646" Offset="0.976"/>
+				<GradientStop Color="#FF0B2C42" Offset="0.821"/>
+				<GradientStop Color="#FF0D2434" Offset="0.873"/>
+			</LinearGradientBrush>
+		</Grid.Background>
+		<Label Name="Account"  HorizontalAlignment="Left" Margin="0,1,0,0" Width="170" VerticalAlignment="Top" FontSize="18" Foreground="#FF3194B2" FontFamily="Segoe UI Semibold"  BorderThickness="0,0,0,2" Content="{Binding Tag, ElementName=Account}" Height="18" Grid.Row="0" PreviewMouseLeftButtonDown="Account_PreviewMouseLeftButtonDown" BorderBrush="#FFEA0A0A" />
+		<Label Name="btnClose"  HorizontalAlignment="Right" Margin="0,1,0,0" VerticalAlignment="Top" FontSize="18" Foreground="#FF3194B2" FontFamily="Segoe UI Semibold"  BorderThickness="0,0,0,2" Content="" Height="18" Grid.Row="0" BorderBrush="#FFEA0A0A" Width="36" Background="#FF213944" MouseEnter="btnClose_MouseEnter" MouseLeave="btnClose_MouseLeave" MouseLeftButtonDown="btnClose_MouseLeftButtonDown" MouseDoubleClick="btnClose_MouseDoubleClick" />
+		<Label Name="Number"  HorizontalAlignment="Left" Margin="10,4,0,0" VerticalAlignment="Top" FontSize="26" Foreground="#FF6DCFEC" FontFamily="Segoe UI Semibold" Width="157"  BorderThickness="2" Content="{Binding Tag, ElementName=Number}" Height="46" Grid.Row="1" Padding="0" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" />
+		<Label Name="Del" Tag="1"  Content="&lt;" HorizontalAlignment="Right" Margin="0,4,0,0" VerticalAlignment="Top" FontSize="26" FontWeight="Bold" FontFamily="Segoe UI Semibold" Width="30"  BorderThickness="2" MouseLeave="D_MouseLeave" MouseDown="Del_MouseDown" MouseUp="D_MouseUp" MouseEnter="Del_MouseEnter" Foreground="#FF09B5E8" Grid.Row="1" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Padding="0" Height="46"/>
+
+
+
+		<Label Name="D1"  Tag="1" Content="____1" HorizontalAlignment="Left" Margin="10,5,10,0" VerticalAlignment="Top" FontSize="24" Foreground="#FF09B5E8" FontWeight="Bold" FontFamily="Segoe UI Semibold" Width="50"  BorderThickness="2"  MouseEnter="D_MouseEnter" MouseLeave="D_MouseLeave" MouseDown="D_MouseDown" MouseUp="D_MouseUp" Grid.Row="2" Padding="0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" />
+		<Label Name="D2"   Tag="2" Content="____2" HorizontalAlignment="Center" Margin="10,5,10,0" VerticalAlignment="Top" FontSize="24" Foreground="#FF09B5E8" FontWeight="Bold" FontFamily="Segoe UI Semibold" Width="50" BorderThickness="2" MouseEnter="D_MouseEnter" MouseLeave="D_MouseLeave" MouseDown="D_MouseDown" MouseUp="D_MouseUp" Grid.Row="2" Padding="0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+		<Label Name="D3"   Tag="3" Content="____3" HorizontalAlignment="Right" Margin="10,5,10,0" VerticalAlignment="Top" FontSize="24" Foreground="#FF09B5E8" FontWeight="Bold" FontFamily="Segoe UI Semibold" Width="50" BorderThickness="2" MouseEnter="D_MouseEnter" MouseLeave="D_MouseLeave" MouseDown="D_MouseDown" MouseUp="D_MouseUp" Grid.Row="2" Padding="0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+		<Label Name="D4"   Tag="4" Content="____4" HorizontalAlignment="Left" Margin="10,56,10,0" VerticalAlignment="Top" FontSize="24" Foreground="#FF09B5E8" FontWeight="Bold" FontFamily="Segoe UI Semibold" Width="50" BorderThickness="2" MouseEnter="D_MouseEnter" MouseLeave="D_MouseLeave" MouseDown="D_MouseDown" MouseUp="D_MouseUp" Grid.Row="2" Padding="0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+		<Label Name="D5"  Tag="5" Content="____5" HorizontalAlignment="Center" Margin="10,56,10,0" VerticalAlignment="Top" FontSize="24" Foreground="#FF09B5E8" FontWeight="Bold" FontFamily="Segoe UI Semibold" Width="50" BorderThickness="2" MouseEnter="D_MouseEnter" MouseLeave="D_MouseLeave" MouseDown="D_MouseDown" MouseUp="D_MouseUp" Grid.Row="2" Padding="0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+		<Label Name="D6"  Tag="6" Content="____6" HorizontalAlignment="Right" Margin="10,56,10,0" VerticalAlignment="Top" FontSize="24" Foreground="#FF09B5E8" FontWeight="Bold" FontFamily="Segoe UI Semibold" Width="50" BorderThickness="2" MouseEnter="D_MouseEnter" MouseLeave="D_MouseLeave" MouseDown="D_MouseDown" MouseUp="D_MouseUp" Grid.Row="2" Padding="0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+		<Label Name="D7"  Tag="7"  Content="____7" HorizontalAlignment="Left" Margin="10,107,10,0" VerticalAlignment="Top" FontSize="24" Foreground="#FF09B5E8" FontWeight="Bold" FontFamily="Segoe UI Semibold" Width="50" BorderThickness="2" MouseEnter="D_MouseEnter" MouseLeave="D_MouseLeave" MouseDown="D_MouseDown" MouseUp="D_MouseUp" Grid.Row="2" Padding="0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+		<Label Name="D8"  Tag="8" Content="____8" HorizontalAlignment="Center" Margin="10,107,10,0" VerticalAlignment="Top" FontSize="24" Foreground="#FF09B5E8" FontWeight="Bold" FontFamily="Segoe UI Semibold" Width="50" BorderThickness="2" MouseEnter="D_MouseEnter" MouseLeave="D_MouseLeave" MouseDown="D_MouseDown" MouseUp="D_MouseUp" Grid.Row="2" Padding="0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+		<Label Name="D9"  Tag="9" Content="____9" HorizontalAlignment="Right" Margin="10,107,10,0" VerticalAlignment="Top" FontSize="24" Foreground="#FF09B5E8" FontWeight="Bold" FontFamily="Segoe UI Semibold" Width="50" BorderThickness="2" MouseEnter="D_MouseEnter" MouseLeave="D_MouseLeave" MouseDown="D_MouseDown" MouseUp="D_MouseUp" Grid.Row="2" Padding="0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+		<Label Name="D0" Tag="0" Content="____0" HorizontalAlignment="Center" Margin="10,158,10,0" VerticalAlignment="Top" FontSize="24" Foreground="#FF09B5E8" FontWeight="Bold" FontFamily="Segoe UI Semibold" Width="50" BorderThickness="2" MouseEnter="D_MouseEnter" MouseLeave="D_MouseLeave" MouseDown="D_MouseDown" MouseUp="D_MouseUp" Grid.Row="2" Padding="0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+		<Label Name="DS"  Tag="#"  Content="  #" HorizontalAlignment="Right" Margin="10,158,10,0" VerticalAlignment="Top" FontSize="24" Foreground="#FF09B5E8" FontWeight="Bold" FontFamily="Segoe UI Semibold" Width="50" BorderThickness="2" MouseEnter="D_MouseEnter" MouseLeave="D_MouseLeave" MouseDown="D_MouseDown" MouseUp="D_MouseUp" Grid.Row="2" Padding="0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+		<Label Name="DA"  Tag="*"  Content="  *" HorizontalAlignment="Left" Margin="10,158,10,0" VerticalAlignment="Top" FontSize="24" Foreground="#FF09B5E8" FontWeight="Bold" FontFamily="Segoe UI Semibold" Width="50" BorderThickness="2" MouseEnter="D_MouseEnter" MouseLeave="D_MouseLeave" MouseDown="D_MouseDown" MouseUp="D_MouseUp" Grid.Row="2" Padding="0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+
+		
+		<Label Name="btnHold"  Tag="0" Content="Hold" HorizontalAlignment="Left"  VerticalAlignment="Top" FontSize="18" Foreground="#FF09B5E8" FontWeight="Bold" FontFamily="Segoe UI Semibold" Width="50" BorderThickness="2,2,2,5" MouseEnter="D_MouseEnter" MouseLeave="D_MouseLeave" MouseUp="D_MouseUp" Height="38" Margin="10,1,10,1" Grid.Row="3" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Padding="0" MouseDown="btnHold_MouseDown"/>
+		<Label Name="btnCall"  Tag="0" Content="Call" HorizontalAlignment="Center"  VerticalAlignment="Top" FontSize="18" Foreground="#FF09B5E8" FontWeight="Bold" FontFamily="Segoe UI Semibold" Width="66" BorderThickness="2,2,2,5" MouseEnter="D_MouseEnter" MouseLeave="D_MouseLeave" MouseDown="Call_MouseDown" MouseUp="D_MouseUp" Height="38" Margin="65,1,65,1" Grid.Row="3" Background="{x:Null}" BorderBrush="Black" TextOptions.TextHintingMode="Animated" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Padding="0"/>
+		<Label Name="btnTransfer"  Tag="0" Content="SSS" HorizontalAlignment="Right"  VerticalAlignment="Top" FontSize="18" FontWeight="Bold" FontFamily="Segoe UI Semibold" Width="50" BorderThickness="2,2,2,5" MouseEnter="D_MouseEnter" MouseLeave="D_MouseLeave" MouseDown="Transfer_MouseDown" MouseUp="D_MouseUp" Height="38" Margin="10,1,10,1" Grid.Row="3" Foreground="#FF09B5E8" Padding="0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
+		</Label>
+	</Grid>
+</Window>
