@@ -1,32 +1,190 @@
 ﻿using Sipek.Common;
+using Microsoft.Win32;
+using System.Security.AccessControl;
 
 namespace SIPComm
 {
 	public class AccountConfig : IAccount
 	{
-		#region Properties
+		#region Properties in File
+
+		//public bool Enabled
+		//{
+		//	get
+		//	{
+		//		return Properties.Settings.Default.cfgAccountEnabled;
+		//	}
+		//	set
+		//	{
+		//		Properties.Settings.Default.cfgAccountEnabled = value;
+		//	}
+		//}
+
+		//public int Index
+		//{
+		//	get
+		//	{
+		//		return Properties.Settings.Default.cfgAccountIndex;
+		//	}
+		//	set
+		//	{
+		//		Properties.Settings.Default.cfgAccountIndex = value;
+		//	}
+		//}
+
+		//public string AccountName
+		//{
+		//	get
+		//	{
+		//		return Properties.Settings.Default.cfgAccountName;
+
+		//	}
+		//	set
+		//	{
+		//		Properties.Settings.Default.cfgAccountName = value;
+		//	}
+		//}
+
+		//public string HostName
+		//{
+		//	get
+		//	{
+		//		return Properties.Settings.Default.cfgAccountAddress;
+		//	}
+		//	set
+		//	{
+		//		Properties.Settings.Default.cfgAccountAddress = value;
+		//	}
+		//}
+
+		//public string Id
+		//{
+		//	get
+		//	{
+		//		return Properties.Settings.Default.cfgAccountID;
+		//	}
+		//	set
+		//	{
+		//		Properties.Settings.Default.cfgAccountID = value;
+		//	}
+		//}
+
+		//public string UserName
+		//{
+		//	get
+		//	{
+		//		return Properties.Settings.Default.cfgAccountUsername;
+		//	}
+		//	set
+		//	{
+		//		Properties.Settings.Default.cfgAccountUsername = value;
+		//	}
+		//}
+
+		//public string Password
+		//{
+		//	get
+		//	{
+		//		return Properties.Settings.Default.cfgAccountPassword;
+		//	}
+		//	set
+		//	{
+		//		Properties.Settings.Default.cfgAccountPassword = value;
+		//	}
+		//}
+
+		//public string DisplayName
+		//{
+		//	get
+		//	{
+		//		return Properties.Settings.Default.cfgAccountDisplayName;
+		//	}
+		//	set
+		//	{
+		//		Properties.Settings.Default.cfgAccountDisplayName = value;
+		//	}
+		//}
+
+		//public string DomainName
+		//{
+		//	get
+		//	{
+		//		return Properties.Settings.Default.cfgAccountDomain;
+		//	}
+		//	set
+		//	{
+		//		Properties.Settings.Default.cfgAccountDomain = value;
+		//	}
+		//}
+
+		//public int RegState
+		//{
+		//	get
+		//	{
+		//		return Properties.Settings.Default.cfgAccountState;
+		//	}
+		//	set
+		//	{
+		//		Properties.Settings.Default.cfgAccountState = value;
+		//	}
+		//}
+
+		//public string ProxyAddress
+		//{
+		//	get
+		//	{
+		//		return Properties.Settings.Default.cfgAccountProxyAddress;
+		//	}
+		//	set
+		//	{
+		//		Properties.Settings.Default.cfgAccountProxyAddress = value;
+		//	}
+		//}
+
+		//public ETransportMode TransportMode
+		//{
+		//	get
+		//	{
+		//		return (ETransportMode)Properties.Settings.Default.cfgAccountTransport;
+		//	}
+		//	set
+		//	{
+		//		Properties.Settings.Default.cfgAccountTransport = (int)value;
+		//	}
+		//}
+
+		#endregion
+
+		#region Properties in Register
+
+		public AccountConfig()
+		{
+			regKey.SetAccessControl(new RegistrySecurity());
+		}
+
+		RegistryKey regKey = Registry.CurrentUser.CreateSubKey("Software\\SIPComm\\vars");
 
 		public bool Enabled
 		{
 			get
 			{
-				return Properties.Settings.Default.cfgAccountEnabled;
+				return (bool)regKey.GetValue("cfgAccountEnabled", true);
 			}
 			set
 			{
-				Properties.Settings.Default.cfgAccountEnabled = value;
+				regKey.SetValue("cfgAccountEnabled", (bool)value);
 			}
 		}
 
 		public int Index
 		{
 			get
-			{ 
-				return Properties.Settings.Default.cfgAccountIndex;				
+			{
+				return (int)regKey.GetValue("cfgAccountIndex", 0);
 			}
-			set 
-			{ 
-				Properties.Settings.Default.cfgAccountIndex = value; 				
+			set
+			{
+				regKey.SetValue("cfgAccountIndex", (int)value);
 			}
 		}
 
@@ -34,12 +192,12 @@ namespace SIPComm
 		{
 			get
 			{
-				return Properties.Settings.Default.cfgAccountName;
+				return (string)regKey.GetValue("cfgAccountName", "Default");
 
 			}
 			set
 			{
-				Properties.Settings.Default.cfgAccountName = value;
+				regKey.SetValue("cfgAccountName", (string)value);
 			}
 		}
 
@@ -47,11 +205,11 @@ namespace SIPComm
 		{
 			get
 			{
-				return Properties.Settings.Default.cfgAccountAddress;
+				return (string)regKey.GetValue("cfgAccountAddress", "10.10.10.4");
 			}
 			set
 			{
-				Properties.Settings.Default.cfgAccountAddress = value;
+				regKey.SetValue("cfgAccountAddress", (string)value);
 			}
 		}
 
@@ -59,11 +217,11 @@ namespace SIPComm
 		{
 			get
 			{
-				return Properties.Settings.Default.cfgAccountID;
+				return (string)regKey.GetValue("cfgAccountID", "1019");
 			}
 			set
 			{
-				Properties.Settings.Default.cfgAccountID = value;
+				regKey.SetValue("cfgAccountID", (string)value);
 			}
 		}
 
@@ -71,11 +229,11 @@ namespace SIPComm
 		{
 			get
 			{
-				return Properties.Settings.Default.cfgAccountUsername;
+				return (string)regKey.GetValue("cfgAccountUsername", "1019");
 			}
 			set
 			{
-				Properties.Settings.Default.cfgAccountUsername = value;
+				regKey.SetValue("cfgAccountUsername", (string)value);
 			}
 		}
 
@@ -83,11 +241,11 @@ namespace SIPComm
 		{
 			get
 			{
-				return Properties.Settings.Default.cfgAccountPassword;
+				return (string)regKey.GetValue("cfgAccountPassword", "it-sfera.fs");
 			}
 			set
 			{
-				Properties.Settings.Default.cfgAccountPassword = value;
+				regKey.SetValue("cfgAccountPassword", (string)value);
 			}
 		}
 
@@ -95,11 +253,11 @@ namespace SIPComm
 		{
 			get
 			{
-				return Properties.Settings.Default.cfgAccountDisplayName;
+				return (string)regKey.GetValue("cfgAccountDisplayName", "1019");
 			}
 			set
 			{
-				Properties.Settings.Default.cfgAccountDisplayName = value;
+				regKey.SetValue("cfgAccountDisplayName", (string)value);
 			}
 		}
 
@@ -107,23 +265,23 @@ namespace SIPComm
 		{
 			get
 			{
-				return Properties.Settings.Default.cfgAccountDomain;
+				return (string)regKey.GetValue("cfgAccountDomain", "10.10.10.4");
 			}
 			set
 			{
-				Properties.Settings.Default.cfgAccountDomain = value;
+				regKey.SetValue("cfgAccountDomain", (string)value);
 			}
 		}
 
 		public int RegState
 		{
-			get 
+			get
 			{
-				return Properties.Settings.Default.cfgAccountState;
+				return (int)regKey.GetValue("cfgAccountState", 0);
 			}
 			set
 			{
-				Properties.Settings.Default.cfgAccountState = value;
+				regKey.SetValue("cfgAccountState", (int)value);
 			}
 		}
 
@@ -131,11 +289,11 @@ namespace SIPComm
 		{
 			get
 			{
-				return Properties.Settings.Default.cfgAccountProxyAddress;
+				return (string)regKey.GetValue("cfgAccountProxyAddress", "");
 			}
 			set
 			{
-				Properties.Settings.Default.cfgAccountProxyAddress = value;
+				regKey.SetValue("cfgAccountProxyAddress", (string)value);
 			}
 		}
 
@@ -143,15 +301,15 @@ namespace SIPComm
 		{
 			get
 			{
-				return (ETransportMode)Properties.Settings.Default.cfgAccountTransport;
+				return (ETransportMode)regKey.GetValue("cfgAccountTransport", ETransportMode.TM_UDP);
 			}
 			set
 			{
-				Properties.Settings.Default.cfgAccountTransport = (int)value;
+				regKey.SetValue("cfgAccountTransport", (ETransportMode)value);
 			}
 		}
 
 		#endregion
-	
+
 	}
 }

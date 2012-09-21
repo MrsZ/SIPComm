@@ -115,6 +115,7 @@
     <Compile Include="GUITimer.cs" />
     <Compile Include="Log.cs" />
     <Compile Include="phonebook.cs" />
+    <Compile Include="RegSet.cs" />
     <Compile Include="SipekResources.cs" />
     <Compile Include="TrayNotify.cs" />
     <Page Include="ChatWindow.xaml">

@@ -9,25 +9,25 @@
       <Value Profile="(Default)">0</Value>
     </Setting>
     <Setting Name="cfgAccountName" Type="System.String" Scope="User">
-      <Value Profile="(Default)">1005</Value>
+      <Value Profile="(Default)">1019</Value>
     </Setting>
     <Setting Name="cfgAccountAddress" Type="System.String" Scope="User">
-      <Value Profile="(Default)">10.10.10.111</Value>
+      <Value Profile="(Default)">10.10.10.4</Value>
     </Setting>
     <Setting Name="cfgAccountID" Type="System.String" Scope="User">
-      <Value Profile="(Default)">1005</Value>
+      <Value Profile="(Default)">1019</Value>
     </Setting>
     <Setting Name="cfgAccountUsername" Type="System.String" Scope="User">
-      <Value Profile="(Default)">1005</Value>
+      <Value Profile="(Default)">1019</Value>
     </Setting>
     <Setting Name="cfgAccountPassword" Type="System.String" Scope="User">
-      <Value Profile="(Default)">1234</Value>
+      <Value Profile="(Default)">it-sfera.fs</Value>
     </Setting>
     <Setting Name="cfgAccountDisplayName" Type="System.String" Scope="User">
-      <Value Profile="(Default)">1005</Value>
+      <Value Profile="(Default)">1019</Value>
     </Setting>
     <Setting Name="cfgAccountDomain" Type="System.String" Scope="User">
-      <Value Profile="(Default)">10.10.10.111</Value>
+      <Value Profile="(Default)">10.10.10.4</Value>
     </Setting>
     <Setting Name="cfgAccountState" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">0</Value>
@@ -63,7 +63,7 @@
       <Value Profile="(Default)" />
     </Setting>
     <Setting Name="cfgSipPort" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">5060</Value>
+      <Value Profile="(Default)">5070</Value>
     </Setting>
     <Setting Name="cfgSipPublishEnabled" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
