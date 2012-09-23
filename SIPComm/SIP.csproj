@@ -69,11 +69,12 @@
   <PropertyGroup>
     <TargetZone>LocalIntranet</TargetZone>
   </PropertyGroup>
+  <PropertyGroup />
   <PropertyGroup>
-    <ApplicationManifest>Properties\app.manifest</ApplicationManifest>
+    <ApplicationIcon>phone.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>phone_4.ico</ApplicationIcon>
+    <ApplicationManifest>Properties\app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="pjsipDll">
@@ -181,7 +182,6 @@
     <None Include="Resources\ringback.wav" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="phone_4.ico" />
     <None Include="Resources\Circle_Blue.ico" />
     <None Include="Resources\Circle_Blue_Help.ico" />
     <None Include="Resources\Circle_Green.ico" />
@@ -219,6 +219,7 @@
     <Content Include="lib\SipekSdk.dll" />
     <Content Include="lib\ssleay32.dll" />
     <Content Include="lib\WaveLibMixer.dll" />
+    <Resource Include="phone.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

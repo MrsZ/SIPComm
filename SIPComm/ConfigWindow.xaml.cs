@@ -23,16 +23,5 @@ namespace SIPComm
 	   {
 		  InitializeComponent();
 	   }
-
-	   private void Window_Loaded_1(object sender, RoutedEventArgs e)
-	   {
-
-	   }
-
-	   private void Window_Closing_1(object sender, System.ComponentModel.CancelEventArgs e)
-	   {
-		  Settings.Default.Save();
-	   }
-
     }
 }

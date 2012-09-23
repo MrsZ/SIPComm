@@ -1,83 +1,90 @@
-﻿using System.Collections.Generic;
-using Sipek.Common;
+﻿using Sipek.Common;
 using Sipek.Sip;
+using System.Collections.Generic;
 
 namespace SIPComm
 {
 	public class PhoneConfig : IConfiguratorInterface
 	{
+		private RegSet RegSet;
+
 		#region Properties
 
-		public bool IsNull 
-		{ 
-			get { return false; } 
+		public PhoneConfig()
+		{
+			RegSet = new RegSet();
+		}
+
+		public bool IsNull
+		{
+			get { return false; }
 		}
 
 		public bool CFUFlag
 		{
-			get { return Properties.Settings.Default.cfgCFUFlag; }
-			set { Properties.Settings.Default.cfgCFUFlag = value; }
+			get { return RegSet.CFUFlag; }
+			set { RegSet.CFUFlag = value; }
 		}
 
 		public string CFUNumber
 		{
-			get { return Properties.Settings.Default.cfgCFUNumber; }
-			set { Properties.Settings.Default.cfgCFUNumber = value; }
+			get { return RegSet.CFUNumber; }
+			set { RegSet.CFUNumber = value; }
 		}
 
 		public bool CFNRFlag
 		{
-			get { return Properties.Settings.Default.cfgCFNRFlag; }
-			set { Properties.Settings.Default.cfgCFNRFlag = value; }
+			get { return RegSet.CFNRFlag; }
+			set { RegSet.CFNRFlag = value; }
 		}
 
 		public string CFNRNumber
 		{
-			get { return Properties.Settings.Default.cfgCFNRNumber; }
-			set { Properties.Settings.Default.cfgCFNRNumber = value; }
+			get { return RegSet.CFNRNumber; }
+			set { RegSet.CFNRNumber = value; }
 		}
 
 		public bool DNDFlag
 		{
-			get { return Properties.Settings.Default.cfgDNDFlag; }
-			set { Properties.Settings.Default.cfgDNDFlag = value; }
+			get { return RegSet.DNDFlag; }
+			set { RegSet.DNDFlag = value; }
 		}
 
 		public bool AAFlag
 		{
-			get { return Properties.Settings.Default.cfgAAFlag; }
-			set { Properties.Settings.Default.cfgAAFlag = value; }
+			get { return RegSet.AAFlag; }
+			set { RegSet.AAFlag = value; }
 		}
 
 		public bool CFBFlag
 		{
-			get { return Properties.Settings.Default.cfgCFBFlag; }
-			set { Properties.Settings.Default.cfgCFBFlag = value; }
+			get { return RegSet.CFBFlag; }
+			set { RegSet.CFBFlag = value; }
 		}
 
 		public string CFBNumber
 		{
-			get { return Properties.Settings.Default.cfgCFBNumber; }
-			set { Properties.Settings.Default.cfgCFBNumber = value; }
+			get { return RegSet.CFBNumber; }
+			set { RegSet.CFBNumber = value; }
 		}
 
 		public int SIPPort
 		{
-			get { return Properties.Settings.Default.cfgSipPort; }
-			set { Properties.Settings.Default.cfgSipPort = value; }
+			get { return RegSet.SIPPort; }
+			set { RegSet.SIPPort = value; }
 		}
 
 		public bool PublishEnabled
 		{
 			get
 			{
-				SipConfigStruct.Instance.publishEnabled = Properties.Settings.Default.cfgSipPublishEnabled;
-				return Properties.Settings.Default.cfgSipPublishEnabled;
+				SipConfigStruct.Instance.publishEnabled = RegSet.PublishEnabled;
+				return RegSet.PublishEnabled;
 			}
 			set
 			{
 				SipConfigStruct.Instance.publishEnabled = value;
-				Properties.Settings.Default.cfgSipPublishEnabled = value;
+				RegSet.PublishEnabled = value;
 			}
 		}
 
@@ -85,38 +92,32 @@ namespace SIPComm
 		{
 			get
 			{
-				SipConfigStruct.Instance.stunServer = Properties.Settings.Default.cfgStunServerAddress;
-				return Properties.Settings.Default.cfgStunServerAddress;
+				SipConfigStruct.Instance.stunServer = RegSet.StunServerAddress;
+				return RegSet.StunServerAddress;
 			}
 			set
 			{
-				Properties.Settings.Default.cfgStunServerAddress = value;
+				RegSet.StunServerAddress = value;
 				SipConfigStruct.Instance.stunServer = value;
 			}
 		}
 
 		public EDtmfMode DtmfMode
 		{
-			get
-			{
-				return (EDtmfMode)Properties.Settings.Default.cfgDtmfMode;
-			}
-			set
-			{
-				Properties.Settings.Default.cfgDtmfMode = (int)value;
-			}
+			get { return RegSet.DtmfMode; }
+			set { RegSet.DtmfMode = value; }
 		}
 
 		public int Expires
 		{
 			get
 			{
-				SipConfigStruct.Instance.expires = Properties.Settings.Default.cfgRegistrationTimeout;
-				return Properties.Settings.Default.cfgRegistrationTimeout;
+				SipConfigStruct.Instance.expires = RegSet.Expires;
+				return RegSet.Expires;
 			}
 			set
 			{
-				Properties.Settings.Default.cfgRegistrationTimeout = value;
+				RegSet.Expires = value;
 				SipConfigStruct.Instance.expires = value;
 			}
 		}
@@ -125,12 +126,12 @@ namespace SIPComm
 		{
 			get
 			{
-				SipConfigStruct.Instance.ECTail = Properties.Settings.Default.cfgECTail;
-				return Properties.Settings.Default.cfgECTail;
+				SipConfigStruct.Instance.ECTail = RegSet.ECTail;
+				return RegSet.ECTail;
 			}
 			set
 			{
-				Properties.Settings.Default.cfgECTail = value;
+				RegSet.ECTail = value;
 				SipConfigStruct.Instance.ECTail = value;
 			}
 		}
@@ -139,12 +140,12 @@ namespace SIPComm
 		{
 			get
 			{
-				SipConfigStruct.Instance.VADEnabled = Properties.Settings.Default.cfgVAD;
-				return Properties.Settings.Default.cfgVAD;
+				SipConfigStruct.Instance.VADEnabled = RegSet.VADEnabled;
+				return RegSet.VADEnabled;
 			}
 			set
 			{
-				Properties.Settings.Default.cfgVAD = value;
+				RegSet.VADEnabled = value;
 				SipConfigStruct.Instance.VADEnabled = value;
 			}
 		}
@@ -153,26 +154,20 @@ namespace SIPComm
 		{
 			get
 			{
-				SipConfigStruct.Instance.nameServer = Properties.Settings.Default.cfgNameServer;
-				return Properties.Settings.Default.cfgNameServer;
+				SipConfigStruct.Instance.nameServer = RegSet.NameServer;
+				return RegSet.NameServer;
 			}
 			set
 			{
-				Properties.Settings.Default.cfgNameServer = value;
+				RegSet.NameServer = value;
 				SipConfigStruct.Instance.nameServer = value;
 			}
 		}
 
 		public int DefaultAccountIndex
 		{
-			get
-			{
-				return Properties.Settings.Default.cfgAccountDefault;
-			}
-			set
-			{
-				Properties.Settings.Default.cfgAccountDefault = value;
-			}
+			get { return RegSet.DefaultAccountIndex; }
+			set { RegSet.DefaultAccountIndex = value; }
 		}
 
 		public List<IAccount> Accounts
@@ -191,40 +186,14 @@ namespace SIPComm
 
 		public List<string> CodecList
 		{
-			get
-			{
-				List<string> codecList = new List<string>();
-				System.Collections.Specialized.StringCollection CodecList = new System.Collections.Specialized.StringCollection();
-				//CodecList = Properties.Settings.Default.cfgCodecList;
-				if (null != Properties.Settings.Default.cfgCodecList)
-				{
-				    CodecList = Properties.Settings.Default.cfgCodecList;
-				}
-
-				foreach (string item in CodecList)
-				{
-					codecList.Add(item);
-				}
-				return codecList;
-			}
-			set
-			{
-				Properties.Settings.Default.cfgCodecList.Clear();
-				List<string> cl = value;
-				System.Collections.Specialized.StringCollection CodecList = new System.Collections.Specialized.StringCollection();
-				foreach (string item in cl)
-				{
-				    CodecList.Add(item);
-				}
-				Properties.Settings.Default.cfgCodecList = CodecList;
-			}
+			get { return RegSet.CodecList; }
+			set { RegSet.CodecList = value; }
 		}
 
-		#endregion
-		
+		#endregion Properties
+
 		public void Save()
-		{
-			Properties.Settings.Default.Save();
+		{			
 		}
 	}
 }
