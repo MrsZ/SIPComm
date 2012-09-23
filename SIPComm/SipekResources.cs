@@ -1,21 +1,20 @@
 ﻿using Sipek.Common;
-using Sipek.Sip;
 using Sipek.Common.CallControl;
+using Sipek.Sip;
 
 namespace SIPComm
-{	
+{
 	public class SipekResources : AbstractFactory
 	{
-		IMediaProxyInterface _mediaProxy = new CMediaPlayerProxy();
-		ICallLogInterface _callLogger = new CCallLog();
-		pjsipStackProxy _stackProxy = pjsipStackProxy.Instance;
-		PhoneConfig _config = new PhoneConfig();
-		
+		private IMediaProxyInterface _mediaProxy = new CMediaPlayerProxy();
+		private ICallLogInterface _callLogger = new CCallLog();
+		private pjsipStackProxy _stackProxy = pjsipStackProxy.Instance;
+		private PhoneConfig _config = new PhoneConfig();
+
 		#region Constructor
+
 		public SipekResources()
 		{
-
-			// initialize sip struct at startup
 			SipConfigStruct.Instance.stunServer = this.Configurator.StunServerAddress;
 			SipConfigStruct.Instance.publishEnabled = this.Configurator.PublishEnabled;
 			SipConfigStruct.Instance.expires = this.Configurator.Expires;
@@ -23,10 +22,6 @@ namespace SIPComm
 			SipConfigStruct.Instance.ECTail = this.Configurator.ECTail;
 			SipConfigStruct.Instance.nameServer = this.Configurator.NameServer;
 
-			//
-			//_config.Accounts[acc.Index] = acc;
-
-			// initialize modules
 			_callManager.StackProxy = _stackProxy;
 			_callManager.Config = _config;
 			_callManager.Factory = this;
@@ -34,15 +29,12 @@ namespace SIPComm
 			_stackProxy.Config = _config;
 			_registrar.Config = _config;
 			_messenger.Config = _config;
-
-			// do not save account state
-			Properties.Settings.Default.cfgAccountState = 0;
-			Properties.Settings.Default.cfgAccountIndex = 0;
-
 		}
+
 		#endregion Constructor
 
 		#region AbstractFactory methods
+
 		public ITimer createTimer()
 		{
 			return new GUITimer();
@@ -53,9 +45,10 @@ namespace SIPComm
 			return new CStateMachine();
 		}
 
-		#endregion
+		#endregion AbstractFactory methods
 
 		#region Other Resources
+
 		public pjsipStackProxy StackProxy
 		{
 			get { return _stackProxy; }
@@ -81,22 +74,26 @@ namespace SIPComm
 		}
 
 		private IRegistrar _registrar = pjsipRegistrar.Instance;
+
 		public IRegistrar Registrar
 		{
 			get { return _registrar; }
 		}
 
 		private IPresenceAndMessaging _messenger = pjsipPresenceAndMessaging.Instance;
+
 		public IPresenceAndMessaging Messenger
 		{
 			get { return _messenger; }
 		}
 
 		private CCallManager _callManager = CCallManager.Instance;
+
 		public CCallManager CallManager
 		{
 			get { return _callManager; }
 		}
-		#endregion
-	}	
+
+		#endregion Other Resources
+	}
 }
