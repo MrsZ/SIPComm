@@ -7,14 +7,14 @@ namespace SIPComm
 {
 	public class RegSet
 	{
-		#region Account Properties
+		private RegistryKey regKey = Registry.CurrentUser.CreateSubKey("Software\\SIPComm\\vars");
 
 		public RegSet()
 		{
 			regKey.SetAccessControl(new RegistrySecurity());
 		}
 
-		private RegistryKey regKey = Registry.CurrentUser.CreateSubKey("Software\\SIPComm\\vars");
+		#region Account Properties
 
 		public bool Enabled
 		{
