@@ -219,6 +219,8 @@
     <Content Include="lib\SipekSdk.dll" />
     <Content Include="lib\ssleay32.dll" />
     <Content Include="lib\WaveLibMixer.dll" />
+    <Resource Include="Resources\users.png" />
+    <Resource Include="Resources\message.png" />
     <Resource Include="phone.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
