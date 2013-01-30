@@ -42,7 +42,6 @@ namespace SIPComm
 
 		#endregion Properties
 
-
 		public void load(string fileName)
 		{
 			XmlDocument xmlDocument = new XmlDocument();

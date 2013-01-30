@@ -1,12 +1,14 @@
-﻿using Sipek.Common;
+﻿using Microsoft.Win32;
+using Sipek.Common;
 using Sipek.Common.CallControl;
 using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
+using System.Security.AccessControl;
+using SIPComm.Properties;
 
 namespace SIPComm
 {
@@ -16,426 +18,217 @@ namespace SIPComm
 	public partial class MainWindow : Window
 	{
 		#region Fields
-
-		private SipekResources _resources = new SipekResources();
-		public IStateMachine callState;
-		private List<IAccount> AccountsList = new List<IAccount>();
-		private EUserStatus _lastUserStatus = EUserStatus.AVAILABLE;
-
+		private RegistryKey regKey = Registry.CurrentUser.CreateSubKey("Software\\SIPComm");
+		private static Agent Agent;
 		private ChatWindow _chatWindow;
-
-		private RegSet RegSet;
-
-		private string AccountStateText;
-		private string dialDigit;
-
-		private System.Timers.Timer tmr = new System.Timers.Timer();
-
-		private TrayNotify Notify;
-
+		private ConfigWindow _configWindow;
+		private System.Windows.Forms.NotifyIcon _notifyIcon;
 		private Dispatcher _mainDispatcher = Dispatcher.CurrentDispatcher;
 		private BrushConverter converter = new BrushConverter();
-
+		private string dialDigit;
 		#endregion Fields
 
-		#region SIP Properties
-
-		public SipekResources SipekResources
+		#region  Properties
+		public bool StartHidden
 		{
-			get { return _resources; }
+			get { return (int)regKey.GetValue("StartHidden", 0) == 1 ? true : false; }
+			set { regKey.SetValue("StartHidden", (int)(value ? 1 : 0)); }
 		}
 
-		public CCallManager CallManager
+		public System.Drawing.Icon Icon
 		{
-			get { return _resources.CallManager; }
+			get { return _notifyIcon.Icon; }
+			set { _notifyIcon.Icon = value; }
 		}
 
-		public bool IsInitialized
-		{
-			get { return SipekResources.StackProxy.IsInitialized; }
-		}
-
-		#endregion SIP Properties
+		#endregion  Properties
 
 		public MainWindow()
 		{
+			regKey.SetAccessControl(new RegistrySecurity());
 			InitializeComponent();
-
-			_chatWindow = new ChatWindow(this);
-
-			Notify = new TrayNotify(this);
-			RegSet = new RegSet();
-
-			Notify.Tray.Visible = true;
+			Initialize();
 		}
+
+		private void Initialize()
+		{		
+			InitializeAgent();
+			InitializeNotifyIcon();
+			_chatWindow = new ChatWindow(this);
+			//_configWindow = new ConfigWindow();
+		}
+
+		
+
+		#region Initialize Agent
+		private void InitializeAgent()
+		{
+			Agent = new Agent();
+			Agent.OnAccountStateChange += Agent_OnAccountStateChange;
+			Agent.OnCallStateRefresh += Agent_OnCallStateRefresh;
+			Agent.OnIncomingCall += Agent_OnIncomingCall;
+			Agent.OnMessageReceived += Agent_OnMessageReceived;
+			Agent.OnMessageWaiting += Agent_OnMessageWaiting;
+			Agent.OnDNDChanged += Agent_OnDNDChanged;
+			Agent.OnAutoAnswerChanged += Agent_OnAutoAnswerChanged;
+			Agent.RegisterAccount();
+		}
+
+		void Agent_OnAutoAnswerChanged(bool value)
+		{
+			if (value)
+				Icon = SIPComm.Properties.Resources.Circle_Orange;
+			else
+				Icon = SIPComm.Properties.Resources.Circle_Green;
+		}
+
+		void Agent_OnDNDChanged(bool value)
+		{
+			if (value)
+				Icon = SIPComm.Properties.Resources.Circle_Yellow;
+			else
+				Icon = SIPComm.Properties.Resources.Circle_Green;
+		}
+
+		void Agent_OnMessageWaiting(int mwi, string text)
+		{
+			//notifyIcon.ShowBalloonTip(1, mwi.ToString(), text, ToolTipIcon.Info);
+		}
+
+		void Agent_OnMessageReceived(string from, string text)
+		{
+			//notifyIcon.ShowBalloonTip(1, from, text, ToolTipIcon.Info);
+		}
+
+		private void Agent_OnIncomingCall(Sipek.Common.EStateId callStateID, string number, string info)
+		{
+			SetIconByCallStateID(callStateID);
+		}
+
+		private void Agent_OnCallStateRefresh(Sipek.Common.EStateId callStateID)
+		{
+			SetIconByCallStateID(callStateID);
+			//ShowBalloonTips(callStateID);
+		}
+
+		private void Agent_OnAccountStateChange(int accState)
+		{
+			switch (accState)
+			{
+				case 200:
+					Icon = SIPComm.Properties.Resources.Circle_Green;
+					break;
+
+				case 0:
+					Icon = SIPComm.Properties.Resources.Circle_Grey;
+					break;
+
+				default:
+					Icon = SIPComm.Properties.Resources.Circle_Yellow;
+					break;
+			}
+		}
+
+		private void SetIconByCallStateID(Sipek.Common.EStateId callStateID)
+		{
+			switch (callStateID)
+			{
+				case Sipek.Common.EStateId.ACTIVE:
+					Icon = SIPComm.Properties.Resources.Circle_Red;
+					break;
+
+				case Sipek.Common.EStateId.ALERTING:
+					Icon = SIPComm.Properties.Resources.Circle_Orange;
+					break;
+
+				case Sipek.Common.EStateId.CONNECTING:
+					Icon = SIPComm.Properties.Resources.Circle_Yellow;
+					break;
+
+				case Sipek.Common.EStateId.HOLDING:
+					Icon = SIPComm.Properties.Resources.Circle_Blue;
+					break;
+
+				case Sipek.Common.EStateId.IDLE:
+					Icon = SIPComm.Properties.Resources.Circle_Yellow;
+					break;
+
+				case Sipek.Common.EStateId.INCOMING:
+					Icon = SIPComm.Properties.Resources.Circle_Orange;
+					break;
+
+				case Sipek.Common.EStateId.NULL:
+					Icon = SIPComm.Properties.Resources.Circle_Green;
+					break;
+
+				case Sipek.Common.EStateId.RELEASED:
+					Icon = SIPComm.Properties.Resources.Circle_Yellow;
+					break;
+
+				case Sipek.Common.EStateId.TERMINATED:
+					Icon = SIPComm.Properties.Resources.Circle_Yellow;
+					break;
+			}
+		}
+
+
+		#endregion Initialize Agent
+
+		#region Initialize NotifyIcon
+		private void InitializeNotifyIcon()
+		{
+			_notifyIcon = new System.Windows.Forms.NotifyIcon();
+			
+		}
+		#endregion Initialize NotifyIcon
 
 		#region Call Operations
 
 		public void MakeCall(string number)
 		{
-			callState = SipekResources.CallManager.createOutboundCall(number);
+			throw new NotImplementedException();
 		}
 
 		public void ReleaseCall()
 		{
-			if (callState != null)
-			{
-				SipekResources.CallManager.onUserRelease(callState.Session);
-			}
+			throw new NotImplementedException();
 		}
 
 		public void AnswerCall()
 		{
-			if (callState != null)
-			{
-				SipekResources.CallManager.onUserAnswer(callState.Session);
-			}
+			throw new NotImplementedException();
 		}
 
 		public void TransferCall(string number)
 		{
-			SipekResources.CallManager.onUserTransfer(callState.Session, number);
+			throw new NotImplementedException();
 		}
 
 		public void HoldCall()
 		{
-			SipekResources.CallManager.onUserHoldRetrieve(callState.Session);
+			throw new NotImplementedException();
 		}
 
 		public void DialDigitCall(string number)
 		{
-			SipekResources.CallManager.onUserDialDigit(callState.Session, dialDigit, EDtmfMode.DM_Outband);
+			throw new NotImplementedException();
 		}
 
 		public void Call()
 		{
-			MakeCall(Number.Tag.ToString());
+			Agent.MakeCall(Number.Tag.ToString());
 		}
 
 		#endregion Call Operations
+		
 
-		#region Account Operations
+		#region Agent Events
 
-		public void RegisterAccount()
-		{
-			SipekResources.CallManager.Initialize();
-			SipekResources.Registrar.registerAccounts();
-			RefreshSIP();
-		}
-
-		public void UnregisterAccount()
-		{
-			SipekResources.Registrar.unregisterAccounts();
-			RefreshSIP();
-		}
-
-		#endregion Account Operations
-
-		#region SIP Operations
-
-		public void ShutdownSIP()
-		{
-			SipekResources.CallManager.Shutdown();
-		}
-
-		private void RefreshSIP()
-		{
-			UpdateAccountList();
-		}
-
-		public void UpdateAccountList()
-		{
-			AccountsList.Clear();
-			for (int i = 0; i < SipekResources.Configurator.Accounts.Count; i++)
-			{
-				IAccount acc = SipekResources.Configurator.Accounts[i];
-
-				//// mark default account
-				//if (i == SipekResources.Configurator.DefaultAccountIndex)
-				//{
-				//	if (acc.RegState == 200)
-				//	{
-				//		_mainDispatcher.BeginInvoke(DispatcherPriority.Normal, new ThreadStart(delegate()
-				//		{
-				//			Account.Tag = "acc.AccountName";
-				//			Account.Background = converter.ConvertFromString("#FA890404") as Brush;
-				//		}));
-
-				//		AccountStateText = acc.AccountName;
-				//	}
-				//	else if (acc.RegState == 0)
-				//	{
-				//		AccountStateText = "Trying..." + " - " + acc.AccountName;
-				//		_mainDispatcher.BeginInvoke(DispatcherPriority.Normal, new ThreadStart(delegate()
-				//		{
-				//			Account.Tag = AccountStateText;
-				//			Account.Background = converter.ConvertFromString("#FA390404") as Brush;
-				//		}));
-				//	}
-				//	else
-				//	{
-				//		AccountStateText = "Not registered" + " - " + acc.AccountName;
-				//		_mainDispatcher.BeginInvoke(DispatcherPriority.Normal, new ThreadStart(delegate()
-				//		{
-				//			Account.Tag = AccountStateText;
-				//			Account.Background = converter.ConvertFromString("#Fd890404") as Brush;
-				//		}));
-				//	}
-				//}
-				//else
-				//{
-				//}
-
-				Notify.SetByAccountState(acc);
-
-				AccountsList.Add(acc);
-			}
-		}
-
-		#endregion SIP Operations
-
-		#region SIP Events
-
-		private delegate void DRefreshForm();
-
-		private delegate void DCallStateChanged(int sessionId);
-
-		private delegate void MessageReceivedDelegate(string from, string message);
-
-		private delegate void BuddyStateChangedDelegate(int buddyId, int status, string text);
-
-		private delegate void DMessageWaiting(int mwi, string text);
-
-		private delegate void DIncomingCall(int sessionId, string number, string info);
-
-		private void CallManager_IncomingCallNotification(int sessionId, string number, string info)
-		{
-			callState = SipekResources.CallManager.getCall(sessionId);
-			OnIncomingCall(sessionId, number, info);
-		}
-
-		private void OnIncomingCall(int sessionId, string number, string info)
-		{
-			Notify.SetByCallState(callState);
-			RefreshUIByStatus();
-		}
-
-		private void CallStateRefresh(int sessionId)
-		{
-			CallStateRefreshed(sessionId);
-		}
-
-		private void CallStateRefreshed(int sessionId)
-		{
-			callState = SipekResources.CallManager.getCall(sessionId);
-			RefreshUIByStatus();
-
-			if (callState.StateId == EStateId.NULL)
-			{
-				_mainDispatcher.BeginInvoke(DispatcherPriority.Normal, new ThreadStart(delegate()
-				{
-					btnCall.Content = "Call";
-					btnCall.Background = converter.ConvertFromString("#FD890404") as Brush;
-				}));
-			}
-			else if (callState.StateId == EStateId.INCOMING || callState.StateId == EStateId.ALERTING)
-			{
-				_mainDispatcher.BeginInvoke(DispatcherPriority.Normal, new ThreadStart(delegate()
-				{
-					btnCall.Content = "Accept";
-					btnCall.Background = converter.ConvertFromString("#FF890404") as Brush;
-				}));
-			}
-
-			if (callState.StateId == EStateId.RELEASED)
-			{
-				ReleaseCall();
-			}
-
-			if (callState != null)
-				_mainDispatcher.BeginInvoke(DispatcherPriority.Normal, new ThreadStart(delegate()
-				{
-					Account.Tag = callState.StateId.ToString();
-					Account.Background = converter.ConvertFromString("#Fd890404") as Brush;
-				}));
-
-			Notify.SetByCallState(callState);
-		}
-
-		private void RefreshUIByStatus()
-		{
-			if (EStateId.HOLDING == callState.StateId)
-			{
-				_mainDispatcher.BeginInvoke(DispatcherPriority.Normal, new ThreadStart(delegate()
-				{
-					btnHold.BorderBrush = converter.ConvertFromString("#FD890404") as Brush;
-				}));
-			}
-			else
-			{
-				_mainDispatcher.BeginInvoke(DispatcherPriority.Normal, new ThreadStart(delegate()
-				{
-					btnHold.BorderBrush = converter.ConvertFromString("#FD590404") as Brush;
-				}));
-			}
-			/*
-			switch (callState.StateId)
-			{
-			   case EStateId.ACTIVE:
-				  break;
-
-			   case EStateId.ALERTING:
-				  break;
-
-			   case EStateId.CONNECTING:
-				  break;
-
-			   case EStateId.HOLDING:
-				  break;
-
-			   case EStateId.IDLE:
-				  break;
-
-			   case EStateId.INCOMING:
-				  break;
-
-			   case EStateId.NULL:
-				  break;
-
-			   case EStateId.RELEASED:
-				  break;
-
-			   case EStateId.TERMINATED:
-				  break;
-			   default: return;
-			}
-			 * */
-		}
-
-		private void onAccountStateChanged(int accId, int accState)
-		{
-			RefreshSIP();
-		}
-
-		#region Message
-
-		public void onMessageWaitingIndication(int mwi, string text)
-		{
-			MessageWaiting(mwi, text);
-		}
-
-		public void onMessageReceived(string from, string message)
-		{
-			MessageReceived(from, message);
-		}
-
-		private void MessageReceived(string from, string message)
-		{
-			
-			if (null == _chatWindow)
-			{
-				_chatWindow = new ChatWindow(this);
-
-			}
-
-			string buddyId = parseFrom(from);
-
-			
-			
-			_mainDispatcher.BeginInvoke(DispatcherPriority.Normal, new ThreadStart(delegate()
-			{
-				_chatWindow.AddIncomingMessage(buddyId, message);
-				if (!_chatWindow.ShowActivated)
-				{
-					_chatWindow.Show();
-				}				
-			}));
-
-			/*
-
-					  // check if ChatForm already opened
-					  
-
-					  // if not, create new instance
-					  ChatForm bf = new ChatForm(SipekResources);
-					  int id = CBuddyList.getInstance().getBuddyId(buddyId);
-					  if (id >= 0)
-					  {
-						 //_buddyId = id;
-						 CBuddyRecord buddy = CBuddyList.getInstance()[id];
-
-						 //_titleText.Caption = buddy.FirstName + ", " + buddy.LastName;
-						 bf.BuddyId = (int)id;
-					  }
-					  bf.BuddyName = buddyId;
-					  bf.LastMessage = message;
-					  bf.ShowDialog();
-					  */
-		}
-
-		private string parseFrom(string from)
-		{
-			string number = from.Replace("<sip:", "");
-
-			int atPos = number.IndexOf('@');
-			if (atPos >= 0)
-			{
-				number = number.Remove(atPos);
-				int first = number.IndexOf('"');
-				if (first >= 0)
-				{
-					int last = number.LastIndexOf('"');
-					number = number.Remove(0, last + 1);
-					number = number.Trim();
-				}
-			}
-			else
-			{
-				int semiPos = number.IndexOf(';');
-				if (semiPos >= 0)
-				{
-					number = number.Remove(semiPos);
-				}
-				else
-				{
-					int colPos = number.IndexOf(':');
-					if (colPos >= 0)
-					{
-						number = number.Remove(colPos);
-					}
-				}
-			}
-			return number;
-		}
-
-		private void MessageWaiting(int mwi, string info)
-		{
-			string[] parts = info.Split(new String[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
-			string vmaccount = "";
-			string noofvms = "";
-
-			if (parts.Length == 3)
-			{
-				int index = parts[1].IndexOf("Message-Account: ");
-				if (index == 0)
-				{
-					vmaccount = parts[1].Substring("Message-Account: ".Length);
-				}
-
-				if (parts[2].IndexOf("Voice-Message: ") >= 0)
-				{
-					noofvms = parts[2].Substring("Voice-Message: ".Length);
-				}
-			}
-		}
-
-		#endregion Message
-
-		#endregion SIP Events
+		#endregion Agent Events
 
 		private void Configure()
 		{
-			new ConfigWindow().Show();
+			_configWindow.Show();
 		}
 
 		private void Window_KeyDown_1(object sender, KeyEventArgs e)
@@ -445,7 +238,7 @@ namespace SIPComm
 				case Key.Escape:
 
 					//1 Release call
-					if (null != callState && callState.StateId != EStateId.NULL)
+					if (null != Agent.callStateID && Agent.callStateID != EStateId.NULL)
 					{
 						ReleaseCall();
 					}
@@ -644,9 +437,9 @@ namespace SIPComm
 
 		private void Call_MouseDown(object sender, MouseButtonEventArgs e)
 		{
-			if (null == callState) Call();
+			if (null == Agent.CallState) Call();
 
-			switch (callState.StateId)
+			switch (Agent.CallState.StateId)
 			{
 				case EStateId.ACTIVE:
 				case EStateId.ALERTING: ReleaseCall();
@@ -714,44 +507,14 @@ namespace SIPComm
 
 		private void Window_Closing_1(object sender, System.ComponentModel.CancelEventArgs e)
 		{
-			ShutdownSIP();
-			Notify.Tray.Visible = false;
+			Agent.ShutdownSIP();
 		}
 
 		private void Window_Loaded_1(object sender, RoutedEventArgs e)
 		{
-			SipekResources.CallManager.CallStateRefresh += new DCallStateRefresh(CallStateRefresh);
-			SipekResources.CallManager.IncomingCallNotification += new DIncomingCallNotification(CallManager_IncomingCallNotification);
-			SipekResources.Registrar.AccountStateChanged += new DAccountStateChanged(onAccountStateChanged);
-			SipekResources.Messenger.MessageReceived += onMessageReceived;
-
-			//SipekResources.Messenger.BuddyStatusChanged += onBuddyStateChanged;
-			SipekResources.Registrar.AccountStateChanged += onAccountStateChanged;
-			SipekResources.StackProxy.MessageWaitingIndication += onMessageWaitingIndication;
-
-			RegisterAccount();
-
-			int noOfCodecs = SipekResources.StackProxy.getNoOfCodecs();
-			for (int i = 0; i < noOfCodecs; i++)
-			{
-				string codecname = SipekResources.StackProxy.getCodec(i);
-				if (SipekResources.Configurator.CodecList.Contains(codecname))
-				{
-					SipekResources.StackProxy.setCodecPriority(codecname, 128);
-				}
-				else
-				{
-					SipekResources.StackProxy.setCodecPriority(codecname, 0);
-				}
-			}
-
-			// Initialize BuddyList
-			CBuddyList.getInstance().Messenger = SipekResources.Messenger;
-			CBuddyList.getInstance().initialize();
-
 			Number.Tag = "";
 
-			if (RegSet.StartHidden)
+			if (StartHidden)
 			{
 				this.Hide();
 			}

@@ -10,18 +10,17 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
-using SIPComm.Properties;
 
 namespace SIPComm
 {
-    /// <summary>
-    /// Interaction logic for ConfigWindow.xaml
-    /// </summary>
-    public partial class ConfigWindow : Window
-    {
-	   public ConfigWindow()
-	   {
-		  InitializeComponent();
-	   }
-    }
+	/// <summary>
+	/// Interaction logic for ConfigWindow.xaml
+	/// </summary>
+	public partial class ConfigWindow : Window
+	{
+		public ConfigWindow()
+		{
+			InitializeComponent();
+		}
+	}
 }

@@ -13,10 +13,14 @@
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <WarningLevel>4</WarningLevel>
-    <SccProjectName>SAK</SccProjectName>
-    <SccLocalPath>SAK</SccLocalPath>
-    <SccAuxPath>SAK</SccAuxPath>
-    <SccProvider>SAK</SccProvider>
+    <SccProjectName>
+    </SccProjectName>
+    <SccLocalPath>
+    </SccLocalPath>
+    <SccAuxPath>
+    </SccAuxPath>
+    <SccProvider>
+    </SccProvider>
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <PublishUrl>D:\tmp\SIP\</PublishUrl>
     <Install>true</Install>
@@ -38,7 +42,7 @@
     <PlatformTarget>x86</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
+    <Optimize>true</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
@@ -71,7 +75,7 @@
   </PropertyGroup>
   <PropertyGroup />
   <PropertyGroup>
-    <ApplicationIcon>phone.ico</ApplicationIcon>
+    <ApplicationIcon>Resources\phone.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationManifest>Properties\app.manifest</ApplicationManifest>
@@ -95,6 +99,10 @@
     <Reference Include="System.Xaml">
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
     </Reference>
+    <Reference Include="WaveLibMixer, Version=1.0.2927.30170, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>lib\WaveLibMixer.dll</HintPath>
+    </Reference>
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
@@ -104,21 +112,19 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="AccountConfig .cs" />
-    <Compile Include="CCallLog.cs" />
-    <Compile Include="ChatWindow.xaml.cs">
-      <DependentUpon>ChatWindow.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="CMediaPlayerProxy.cs" />
     <Compile Include="ConfigWindow.xaml.cs">
       <DependentUpon>ConfigWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="GUITimer.cs" />
-    <Compile Include="Log.cs" />
-    <Compile Include="phonebook.cs" />
-    <Compile Include="RegSet.cs" />
-    <Compile Include="SipekResources.cs" />
-    <Compile Include="TrayNotify.cs" />
+    <Compile Include="SIP\AccountConfig .cs" />
+    <Compile Include="SIP\Agent.cs" />
+    <Compile Include="SIP\CCallLog.cs" />
+    <Compile Include="ChatWindow.xaml.cs">
+      <DependentUpon>ChatWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="SIP\CMediaPlayerProxy.cs" />
+    <Compile Include="SIP\GUITimer.cs" />
+    <Compile Include="SIP\phonebook.cs" />
+    <Compile Include="SIP\SipekResources.cs" />
     <Page Include="ChatWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -141,7 +147,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="PhoneConfig.cs" />
+    <Compile Include="SIP\PhoneConfig.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -221,8 +227,9 @@
     <Content Include="lib\WaveLibMixer.dll" />
     <Resource Include="Resources\users.png" />
     <Resource Include="Resources\message.png" />
-    <Resource Include="phone.ico" />
+    <Resource Include="Resources\phone.ico" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

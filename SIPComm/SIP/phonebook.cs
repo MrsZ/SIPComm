@@ -158,7 +158,6 @@ namespace SIPComm
     }
 
     #endregion
-
   }
 
   /// <summary>
@@ -368,7 +367,6 @@ namespace SIPComm
     }
 
     #endregion
-
   }
 
 } // namespace Sipek

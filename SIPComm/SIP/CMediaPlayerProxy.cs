@@ -1,6 +1,7 @@
-﻿using System.Media;
+﻿using SIPComm.Properties;
 using Sipek.Common;
 using System.IO;
+using System.Media;
 
 namespace SIPComm
 {
@@ -13,31 +14,29 @@ namespace SIPComm
 		public int playTone(ETones toneId)
 		{
 
-		    Stream snd = SIPComm.Properties.Resources.congestion;
+		    Stream snd = Resources.congestion;
 
 			switch (toneId)
 			{
 				case ETones.EToneDial:
-				   snd = SIPComm.Properties.Resources.dial;
+				   snd = Resources.dial;
 					break;
 				case ETones.EToneCongestion:
-					snd = SIPComm.Properties.Resources.congestion;
+					snd = Resources.congestion;
 					break;
 				case ETones.EToneRingback:
-					snd = SIPComm.Properties.Resources.ringback;
+					snd = Resources.ringback;
 					break;
 				case ETones.EToneRing:
-					snd = SIPComm.Properties.Resources.ring;
+					snd = Resources.ring;
 					break;
 				default:
 					break;
 			}
 
-			//player.SoundLocation = fname;
 			player.Stream = snd;
 			player.Load();
 			player.PlayLooping();
-
 			return 1;
 		}
 
