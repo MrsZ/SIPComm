@@ -65,7 +65,7 @@ namespace SIPComm
 
 		public string DomainName
 		{
-			get { return (string)regKey.GetValue("cfgAccountDomain", "10.10.10.4"); }
+			get { return (string)regKey.GetValue("cfgAccountDomain", "10.10.10.1"); }
 			set { regKey.SetValue("cfgAccountDomain", (string)value); }
 		}
 

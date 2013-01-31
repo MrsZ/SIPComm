@@ -35,12 +35,6 @@ namespace SIPComm
 			set { regKey.SetValue("StartHidden", (int)(value ? 1 : 0)); }
 		}
 
-		public System.Drawing.Icon Icon
-		{
-			get { return _notifyIcon.Icon; }
-			set { _notifyIcon.Icon = value; }
-		}
-
 		#endregion  Properties
 
 		public MainWindow()
@@ -57,9 +51,7 @@ namespace SIPComm
 			_chatWindow = new ChatWindow(this);
 			//_configWindow = new ConfigWindow();
 		}
-
 		
-
 		#region Initialize Agent
 		private void InitializeAgent()
 		{
@@ -71,23 +63,28 @@ namespace SIPComm
 			Agent.OnMessageWaiting += Agent_OnMessageWaiting;
 			Agent.OnDNDChanged += Agent_OnDNDChanged;
 			Agent.OnAutoAnswerChanged += Agent_OnAutoAnswerChanged;
-			Agent.RegisterAccount();
+
+			_mainDispatcher.BeginInvoke(DispatcherPriority.Normal, new ThreadStart(delegate()
+			{
+				Agent.RegisterAccount();
+			}));
+			
 		}
 
 		void Agent_OnAutoAnswerChanged(bool value)
 		{
 			if (value)
-				Icon = SIPComm.Properties.Resources.Circle_Orange;
+				_notifyIcon.Icon = SIPComm.Properties.Resources.Circle_Orange;
 			else
-				Icon = SIPComm.Properties.Resources.Circle_Green;
+				_notifyIcon.Icon = SIPComm.Properties.Resources.Circle_Green;
 		}
 
 		void Agent_OnDNDChanged(bool value)
 		{
 			if (value)
-				Icon = SIPComm.Properties.Resources.Circle_Yellow;
+				_notifyIcon.Icon = SIPComm.Properties.Resources.Circle_Yellow;
 			else
-				Icon = SIPComm.Properties.Resources.Circle_Green;
+				_notifyIcon.Icon = SIPComm.Properties.Resources.Circle_Green;
 		}
 
 		void Agent_OnMessageWaiting(int mwi, string text)
@@ -116,15 +113,15 @@ namespace SIPComm
 			switch (accState)
 			{
 				case 200:
-					Icon = SIPComm.Properties.Resources.Circle_Green;
+					_notifyIcon.Icon = SIPComm.Properties.Resources.Circle_Green;
 					break;
 
 				case 0:
-					Icon = SIPComm.Properties.Resources.Circle_Grey;
+					_notifyIcon.Icon = SIPComm.Properties.Resources.Circle_Grey;
 					break;
 
 				default:
-					Icon = SIPComm.Properties.Resources.Circle_Yellow;
+					_notifyIcon.Icon = SIPComm.Properties.Resources.Circle_Yellow;
 					break;
 			}
 		}
@@ -134,39 +131,39 @@ namespace SIPComm
 			switch (callStateID)
 			{
 				case Sipek.Common.EStateId.ACTIVE:
-					Icon = SIPComm.Properties.Resources.Circle_Red;
+					_notifyIcon.Icon = SIPComm.Properties.Resources.Circle_Red;
 					break;
 
 				case Sipek.Common.EStateId.ALERTING:
-					Icon = SIPComm.Properties.Resources.Circle_Orange;
+					_notifyIcon.Icon = SIPComm.Properties.Resources.Circle_Orange;
 					break;
 
 				case Sipek.Common.EStateId.CONNECTING:
-					Icon = SIPComm.Properties.Resources.Circle_Yellow;
+					_notifyIcon.Icon = SIPComm.Properties.Resources.Circle_Yellow;
 					break;
 
 				case Sipek.Common.EStateId.HOLDING:
-					Icon = SIPComm.Properties.Resources.Circle_Blue;
+					_notifyIcon.Icon = SIPComm.Properties.Resources.Circle_Blue;
 					break;
 
 				case Sipek.Common.EStateId.IDLE:
-					Icon = SIPComm.Properties.Resources.Circle_Yellow;
+					_notifyIcon.Icon = SIPComm.Properties.Resources.Circle_Yellow;
 					break;
 
 				case Sipek.Common.EStateId.INCOMING:
-					Icon = SIPComm.Properties.Resources.Circle_Orange;
+					_notifyIcon.Icon = SIPComm.Properties.Resources.Circle_Orange;
 					break;
 
 				case Sipek.Common.EStateId.NULL:
-					Icon = SIPComm.Properties.Resources.Circle_Green;
+					_notifyIcon.Icon = SIPComm.Properties.Resources.Circle_Green;
 					break;
 
 				case Sipek.Common.EStateId.RELEASED:
-					Icon = SIPComm.Properties.Resources.Circle_Yellow;
+					_notifyIcon.Icon = SIPComm.Properties.Resources.Circle_Yellow;
 					break;
 
 				case Sipek.Common.EStateId.TERMINATED:
-					Icon = SIPComm.Properties.Resources.Circle_Yellow;
+					_notifyIcon.Icon = SIPComm.Properties.Resources.Circle_Yellow;
 					break;
 			}
 		}
@@ -178,9 +175,76 @@ namespace SIPComm
 		private void InitializeNotifyIcon()
 		{
 			_notifyIcon = new System.Windows.Forms.NotifyIcon();
-			
+			_notifyIcon.Visible = true;
+			_notifyIcon.ContextMenu = new System.Windows.Forms.ContextMenu();
+			_notifyIcon.ContextMenu.MenuItems.Add(new System.Windows.Forms.MenuItem("Перезапустить SIP", new EventHandler(ReloadSIPItem_onClick)));
+			_notifyIcon.ContextMenu.MenuItems.Add(new System.Windows.Forms.MenuItem("Настройки", new EventHandler(SettingsItem_onClick)));
+			_notifyIcon.ContextMenu.MenuItems.Add(new System.Windows.Forms.MenuItem("Выход", new EventHandler(ExitItem_onClick)));
+
+			_notifyIcon.MouseClick += notifyIcon_MouseClick;
+			_notifyIcon.MouseDoubleClick += notifyIcon_MouseDoubleClick;
+			_notifyIcon.Visible = true;
+			_notifyIcon.Icon = SIPComm.Properties.Resources.Circle_Grey;
 		}
-		#endregion Initialize NotifyIcon
+
+		private void ReloadSIPItem_onClick(object sender, EventArgs e)
+		{
+			Agent.ShutdownSIP();
+			Agent.RegisterAccount();
+		}
+
+		private void TestCallItem_onClick(object sender, EventArgs e)
+		{
+		}
+
+		private void SettingsItem_onClick(object sender, EventArgs e)
+		{
+			_configWindow.Show();
+		}
+
+		private void ExitItem_onClick(object sender, EventArgs e)
+		{
+			_notifyIcon.Icon = SIPComm.Properties.Resources.Circle_Grey;
+			Agent.ShutdownSIP();
+			_notifyIcon.Visible = false;
+			Environment.Exit(0);
+		}
+
+		private void notifyIcon_MouseClick(object sender, System.Windows.Forms.MouseEventArgs e)
+		{
+			switch (e.Button)
+			{
+				case System.Windows.Forms.MouseButtons.Right:
+					break;
+				case System.Windows.Forms.MouseButtons.Middle:
+					if (Agent.callStateID == Sipek.Common.EStateId.ACTIVE)
+						Agent.HoldCall();
+					if (Agent.callStateID == Sipek.Common.EStateId.HOLDING)
+						Agent.HoldCall();
+					break;
+			}
+		}
+
+		private void notifyIcon_MouseDoubleClick(object sender, System.Windows.Forms.MouseEventArgs e)
+		{
+			_mainDispatcher.BeginInvoke(DispatcherPriority.Normal, new ThreadStart(delegate()
+			{
+
+			}));
+			switch (Agent.callStateID)
+			{
+				case Sipek.Common.EStateId.ACTIVE: Agent.ReleaseCall();
+					break;
+				case Sipek.Common.EStateId.ALERTING: Agent.ReleaseCall();
+					break;
+				case Sipek.Common.EStateId.INCOMING: Agent.AnswerCall();
+					break;
+			}
+		}
+
+
+
+		#endregion Initialize notifyIcon
 
 		#region Call Operations
 
@@ -221,7 +285,6 @@ namespace SIPComm
 
 		#endregion Call Operations
 		
-
 		#region Agent Events
 
 		#endregion Agent Events
@@ -508,6 +571,7 @@ namespace SIPComm
 		private void Window_Closing_1(object sender, System.ComponentModel.CancelEventArgs e)
 		{
 			Agent.ShutdownSIP();
+			_notifyIcon.Visible = false;
 		}
 
 		private void Window_Loaded_1(object sender, RoutedEventArgs e)
