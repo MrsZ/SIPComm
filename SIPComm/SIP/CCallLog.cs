@@ -13,9 +13,7 @@ namespace SIPComm
 		private const string TYPE = "Type";
 		private const string DURATION = "Duration";
 		private const string COUNT = "Count";
-
 		private string XMLCallLogFile = "calllog.xml";
-
 		private Stack<CCallRecord> _callList;
 
 		public CCallLog()

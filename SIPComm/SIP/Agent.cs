@@ -11,7 +11,7 @@ namespace SIPComm
 	public class Agent : IDisposable
 	{
 		#region Fields
-		private RegistryKey regKey = Registry.CurrentUser.CreateSubKey("Software\\ITSComm\\Agent");
+		private RegistryKey regKey = Registry.CurrentUser.CreateSubKey("Software\\SIPComm");
 		private static SipekResources _resources;// = new SipekResources();
 		private IStateMachine callState;
 		private List<IAccount> AccountsList = new List<IAccount>();
@@ -106,9 +106,9 @@ namespace SIPComm
 			SipekResources.CallManager.onUserHoldRetrieve(callState.Session);
 		}
 
-		public void DialDigitCall(string number)
+		public void DialDigit(string number)
 		{
-			SipekResources.CallManager.onUserDialDigit(callState.Session, dialDigit, EDtmfMode.DM_Outband);
+			SipekResources.CallManager.onUserDialDigit(callState.Session, dialDigit, SipekResources.Configurator.DtmfMode);
 		}
 
 		public void SetSoundDevice(string PlaybackDeviceID, string RecordingDeviceID)

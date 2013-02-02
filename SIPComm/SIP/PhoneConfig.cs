@@ -8,7 +8,7 @@ namespace SIPComm
 {
 	public class PhoneConfig : IConfiguratorInterface
 	{
-		private RegistryKey regKey = Registry.CurrentUser.CreateSubKey("Software\\SIPComm\\PhoneConfig");
+		private RegistryKey regKey = Registry.CurrentUser.CreateSubKey("Software\\SIPComm");
 
 		#region Properties
 
@@ -80,13 +80,13 @@ namespace SIPComm
 		{
 			get
 			{
-				SipConfigStruct.Instance.publishEnabled = (int)regKey.GetValue("cfgSipPublishEnabled", 1) == 1 ? true : false; ;
+				SipConfigStruct.Instance.publishEnabled = (int)regKey.GetValue("cfgPublishEnabled", 0) == 1 ? true : false; ;
 				return SipConfigStruct.Instance.publishEnabled;
 			}
 			set
 			{
 				SipConfigStruct.Instance.publishEnabled = value;
-				regKey.SetValue("cfgSipPublishEnabled", (int)(value ? 1 : 0)); 
+				regKey.SetValue("cfgPublishEnabled", (int)(value ? 1 : 0)); 
 			}
 		}
 
@@ -107,6 +107,12 @@ namespace SIPComm
 		public EDtmfMode DtmfMode
 		{
 			get { return (EDtmfMode)regKey.GetValue("cfgDtmfMode", 0); }
+			set { regKey.SetValue("cfgDtmfMode", (int)value); }
+		}
+
+		public int DtmfModeID
+		{
+			get { return (int)regKey.GetValue("cfgDtmfMode", 0); }
 			set { regKey.SetValue("cfgDtmfMode", (int)value); }
 		}
 

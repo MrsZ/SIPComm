@@ -1,14 +1,13 @@
 ﻿using Microsoft.Win32;
 using Sipek.Common;
-using Sipek.Common.CallControl;
 using System;
+using System.Collections.Generic;
+using System.Security.AccessControl;
 using System.Threading;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
-using System.Security.AccessControl;
-using SIPComm.Properties;
 
 namespace SIPComm
 {
@@ -18,6 +17,8 @@ namespace SIPComm
 	public partial class MainWindow : Window
 	{
 		#region Fields
+
+		private System.ComponentModel.BackgroundWorker SocketWorker;
 		private RegistryKey regKey = Registry.CurrentUser.CreateSubKey("Software\\SIPComm");
 		private static Agent Agent;
 		private ChatWindow _chatWindow;
@@ -25,17 +26,32 @@ namespace SIPComm
 		private System.Windows.Forms.NotifyIcon _notifyIcon;
 		private Dispatcher _mainDispatcher = Dispatcher.CurrentDispatcher;
 		private BrushConverter converter = new BrushConverter();
+		private static Listener Listener;
 		private string dialDigit;
+
 		#endregion Fields
 
-		#region  Properties
+		#region Properties
+
 		public bool StartHidden
 		{
 			get { return (int)regKey.GetValue("StartHidden", 0) == 1 ? true : false; }
 			set { regKey.SetValue("StartHidden", (int)(value ? 1 : 0)); }
 		}
+		
+		public bool UseAgentUI
+		{
+			get { return (int)regKey.GetValue("UseAgentUI", 0) == 1 ? true : false; }
+			set { regKey.SetValue("UseAgentUI", (int)(value ? 1 : 0)); }
+		}
 
-		#endregion  Properties
+		public bool SimpleClient
+		{
+			get { return (int)regKey.GetValue("SimpleClient", 0) == 1 ? true : false; }
+			set { regKey.SetValue("SimpleClient", (int)(value ? 1 : 0)); }
+		}
+
+		#endregion Properties
 
 		public MainWindow()
 		{
@@ -45,14 +61,113 @@ namespace SIPComm
 		}
 
 		private void Initialize()
-		{		
+		{
 			InitializeAgent();
 			InitializeNotifyIcon();
 			_chatWindow = new ChatWindow(this);
-			//_configWindow = new ConfigWindow();
+			_configWindow = new ConfigWindow();
+			InitializeListener();
 		}
-		
+
+		#region InitializeListener
+
+		public void InitializeListener()
+		{
+			if (SimpleClient)
+			{
+				return;
+			}
+
+			try
+			{
+				Listener = new Listener();
+				SocketWorker = new System.ComponentModel.BackgroundWorker();
+				SocketWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.SocketWorker_DoWork);
+				Listener.OnReceiveCommand += Listener_OnReceiveCommand;
+				SocketWorker.RunWorkerAsync();
+			}
+			catch (System.Net.Sockets.SocketException e)
+			{
+				_notifyIcon.ShowBalloonTip(2, "Ошибка!", e.Message, System.Windows.Forms.ToolTipIcon.Warning);
+			}
+		}
+
+		private void SocketWorker_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
+		{
+			try
+			{
+				Listener.Start();
+			}
+			catch { }
+		}
+
+		private void Listener_OnReceiveCommand(string message)
+		{
+			switch (message)
+			{
+				case "answer" :
+					if (Agent.callStateID == Sipek.Common.EStateId.INCOMING)
+						_mainDispatcher.BeginInvoke(DispatcherPriority.Normal, new ThreadStart(delegate()
+						{
+							Agent.AnswerCall();
+						}));
+					break;
+				case "hold" : 
+					if ((Agent.callStateID == Sipek.Common.EStateId.ACTIVE || Agent.callStateID == Sipek.Common.EStateId.HOLDING))
+						_mainDispatcher.BeginInvoke(DispatcherPriority.Normal, new ThreadStart(delegate()
+						{
+							Agent.HoldCall();
+						}));
+					break;
+				case "exit" :
+					MainExit();
+					break;
+				case "reload":
+					_mainDispatcher.BeginInvoke(DispatcherPriority.Normal, new ThreadStart(delegate()
+					{
+						ReloadSIP();
+					}));
+					break;
+				default:
+					ExecuteCustomReceivedCommand(message);
+					break;
+			}
+		}
+
+		private void ExecuteCustomReceivedCommand(string message)
+		{
+			foreach( KeyValuePair<string, string> command in ParseCommand(message))
+			{
+				regKey.SetValue(command.Key, command.Value);
+			}
+			_mainDispatcher.BeginInvoke(DispatcherPriority.Normal, new ThreadStart(delegate()
+			{
+				ReloadSIP();
+			}));
+		}
+
+		private List<KeyValuePair<string, string>> ParseCommand(string message)
+		{
+			string [] command = message.Split(';');
+			List<KeyValuePair<string, string>>commands = new List<KeyValuePair<string, string>>();
+			for (int i = 0; i < command.Length; i++)
+			{
+				string [] tmp = command[i].Split('=');
+				try
+				{
+					commands.Add(new KeyValuePair<string, string>(tmp[0].Trim(), tmp[1].Trim()));
+				}
+				catch { continue; }
+			}
+			return commands;
+		}
+
+
+
+		#endregion InitializeListener
+
 		#region Initialize Agent
+
 		private void InitializeAgent()
 		{
 			Agent = new Agent();
@@ -68,10 +183,9 @@ namespace SIPComm
 			{
 				Agent.RegisterAccount();
 			}));
-			
 		}
 
-		void Agent_OnAutoAnswerChanged(bool value)
+		private void Agent_OnAutoAnswerChanged(bool value)
 		{
 			if (value)
 				_notifyIcon.Icon = SIPComm.Properties.Resources.Circle_Orange;
@@ -79,7 +193,7 @@ namespace SIPComm
 				_notifyIcon.Icon = SIPComm.Properties.Resources.Circle_Green;
 		}
 
-		void Agent_OnDNDChanged(bool value)
+		private void Agent_OnDNDChanged(bool value)
 		{
 			if (value)
 				_notifyIcon.Icon = SIPComm.Properties.Resources.Circle_Yellow;
@@ -87,24 +201,25 @@ namespace SIPComm
 				_notifyIcon.Icon = SIPComm.Properties.Resources.Circle_Green;
 		}
 
-		void Agent_OnMessageWaiting(int mwi, string text)
+		private void Agent_OnMessageWaiting(int mwi, string text)
 		{
 			//notifyIcon.ShowBalloonTip(1, mwi.ToString(), text, ToolTipIcon.Info);
 		}
 
-		void Agent_OnMessageReceived(string from, string text)
+		private void Agent_OnMessageReceived(string from, string text)
 		{
 			//notifyIcon.ShowBalloonTip(1, from, text, ToolTipIcon.Info);
 		}
 
 		private void Agent_OnIncomingCall(Sipek.Common.EStateId callStateID, string number, string info)
 		{
-			SetIconByCallStateID(callStateID);
+			DrawUIByCallState(callStateID);
 		}
 
 		private void Agent_OnCallStateRefresh(Sipek.Common.EStateId callStateID)
 		{
-			SetIconByCallStateID(callStateID);
+			DrawUIByCallState(callStateID);
+
 			//ShowBalloonTips(callStateID);
 		}
 
@@ -126,71 +241,28 @@ namespace SIPComm
 			}
 		}
 
-		private void SetIconByCallStateID(Sipek.Common.EStateId callStateID)
-		{
-			switch (callStateID)
-			{
-				case Sipek.Common.EStateId.ACTIVE:
-					_notifyIcon.Icon = SIPComm.Properties.Resources.Circle_Red;
-					break;
-
-				case Sipek.Common.EStateId.ALERTING:
-					_notifyIcon.Icon = SIPComm.Properties.Resources.Circle_Orange;
-					break;
-
-				case Sipek.Common.EStateId.CONNECTING:
-					_notifyIcon.Icon = SIPComm.Properties.Resources.Circle_Yellow;
-					break;
-
-				case Sipek.Common.EStateId.HOLDING:
-					_notifyIcon.Icon = SIPComm.Properties.Resources.Circle_Blue;
-					break;
-
-				case Sipek.Common.EStateId.IDLE:
-					_notifyIcon.Icon = SIPComm.Properties.Resources.Circle_Yellow;
-					break;
-
-				case Sipek.Common.EStateId.INCOMING:
-					_notifyIcon.Icon = SIPComm.Properties.Resources.Circle_Orange;
-					break;
-
-				case Sipek.Common.EStateId.NULL:
-					_notifyIcon.Icon = SIPComm.Properties.Resources.Circle_Green;
-					break;
-
-				case Sipek.Common.EStateId.RELEASED:
-					_notifyIcon.Icon = SIPComm.Properties.Resources.Circle_Yellow;
-					break;
-
-				case Sipek.Common.EStateId.TERMINATED:
-					_notifyIcon.Icon = SIPComm.Properties.Resources.Circle_Yellow;
-					break;
-			}
-		}
-
-
 		#endregion Initialize Agent
 
 		#region Initialize NotifyIcon
+
 		private void InitializeNotifyIcon()
 		{
 			_notifyIcon = new System.Windows.Forms.NotifyIcon();
 			_notifyIcon.Visible = true;
 			_notifyIcon.ContextMenu = new System.Windows.Forms.ContextMenu();
-			_notifyIcon.ContextMenu.MenuItems.Add(new System.Windows.Forms.MenuItem("Перезапустить SIP", new EventHandler(ReloadSIPItem_onClick)));
-			_notifyIcon.ContextMenu.MenuItems.Add(new System.Windows.Forms.MenuItem("Настройки", new EventHandler(SettingsItem_onClick)));
-			_notifyIcon.ContextMenu.MenuItems.Add(new System.Windows.Forms.MenuItem("Выход", new EventHandler(ExitItem_onClick)));
+			_notifyIcon.ContextMenu.MenuItems.Add(new System.Windows.Forms.MenuItem("Reload SIP", new EventHandler(ReloadSIPItem_onClick)));
+			_notifyIcon.ContextMenu.MenuItems.Add(new System.Windows.Forms.MenuItem("Settings", new EventHandler(SettingsItem_onClick)));
+			_notifyIcon.ContextMenu.MenuItems.Add(new System.Windows.Forms.MenuItem("Exit", new EventHandler(ExitItem_onClick)));
 
 			_notifyIcon.MouseClick += notifyIcon_MouseClick;
-			_notifyIcon.MouseDoubleClick += notifyIcon_MouseDoubleClick;
+			_notifyIcon.MouseDoubleClick += notifyIcon_MouseClick;
 			_notifyIcon.Visible = true;
 			_notifyIcon.Icon = SIPComm.Properties.Resources.Circle_Grey;
 		}
 
 		private void ReloadSIPItem_onClick(object sender, EventArgs e)
 		{
-			Agent.ShutdownSIP();
-			Agent.RegisterAccount();
+			ReloadSIP();
 		}
 
 		private void TestCallItem_onClick(object sender, EventArgs e)
@@ -204,78 +276,72 @@ namespace SIPComm
 
 		private void ExitItem_onClick(object sender, EventArgs e)
 		{
-			_notifyIcon.Icon = SIPComm.Properties.Resources.Circle_Grey;
-			Agent.ShutdownSIP();
-			_notifyIcon.Visible = false;
-			Environment.Exit(0);
+			MainExit();			
 		}
+
+		
 
 		private void notifyIcon_MouseClick(object sender, System.Windows.Forms.MouseEventArgs e)
 		{
 			switch (e.Button)
 			{
-				case System.Windows.Forms.MouseButtons.Right:
+				case System.Windows.Forms.MouseButtons.Left:
+					if (2 == e.Clicks)
+					{
+						if (this.IsVisible)
+						{ this.Hide(); }
+						else
+						{ this.Show(); }
+					}
 					break;
+
+				case System.Windows.Forms.MouseButtons.XButton1:
+				case System.Windows.Forms.MouseButtons.XButton2:
+					OnHoldClick();
+					break;
+
 				case System.Windows.Forms.MouseButtons.Middle:
-					if (Agent.callStateID == Sipek.Common.EStateId.ACTIVE)
-						Agent.HoldCall();
-					if (Agent.callStateID == Sipek.Common.EStateId.HOLDING)
-						Agent.HoldCall();
+					OnCallClick();
 					break;
 			}
 		}
 
-		private void notifyIcon_MouseDoubleClick(object sender, System.Windows.Forms.MouseEventArgs e)
-		{
-			_mainDispatcher.BeginInvoke(DispatcherPriority.Normal, new ThreadStart(delegate()
-			{
+		#endregion Initialize NotifyIcon
 
-			}));
-			switch (Agent.callStateID)
-			{
-				case Sipek.Common.EStateId.ACTIVE: Agent.ReleaseCall();
-					break;
-				case Sipek.Common.EStateId.ALERTING: Agent.ReleaseCall();
-					break;
-				case Sipek.Common.EStateId.INCOMING: Agent.AnswerCall();
-					break;
-			}
+		private void MainExit()
+		{
+			_notifyIcon.Icon = SIPComm.Properties.Resources.Circle_Yellow;
+			Agent.ShutdownSIP();
+			_notifyIcon.Icon = SIPComm.Properties.Resources.Circle_Grey;
+			_notifyIcon.Visible = false;
+			Environment.Exit(0);
 		}
 
+		#region Agent Operations
 
-
-		#endregion Initialize notifyIcon
-
-		#region Call Operations
-
-		public void MakeCall(string number)
+		public void Release()
 		{
-			throw new NotImplementedException();
+			Agent.ReleaseCall();
 		}
 
-		public void ReleaseCall()
+		public void Answer()
 		{
-			throw new NotImplementedException();
+			Agent.AnswerCall();
 		}
 
-		public void AnswerCall()
+		public void Transfer(string number)
 		{
-			throw new NotImplementedException();
+			//throw new NotImplementedException();
 		}
 
-		public void TransferCall(string number)
+		public void Hold()
 		{
-			throw new NotImplementedException();
+			Agent.HoldCall();
 		}
 
-		public void HoldCall()
+		public void DialDigit(string number)
 		{
-			throw new NotImplementedException();
-		}
-
-		public void DialDigitCall(string number)
-		{
-			throw new NotImplementedException();
+			Agent.DialDigit(number);
 		}
 
 		public void Call()
@@ -283,39 +349,73 @@ namespace SIPComm
 			Agent.MakeCall(Number.Tag.ToString());
 		}
 
-		#endregion Call Operations
-		
-		#region Agent Events
-
-		#endregion Agent Events
-
-		private void Configure()
+		private void ReloadSIP()
 		{
-			_configWindow.Show();
+			Agent.ShutdownSIP();
+			Agent.RegisterAccount();
 		}
 
+		#endregion Agent Operations
+
+		private void OnHoldClick()
+		{
+			if (null == Agent.CallState) return;
+			switch (Agent.callStateID)
+			{
+				case Sipek.Common.EStateId.ACTIVE:
+					Agent.HoldCall();
+					break;
+
+				case Sipek.Common.EStateId.HOLDING:
+					Agent.HoldCall();
+					break;
+			}
+		}
+
+		private void OnCallClick()
+		{
+			if (null == Agent.CallState) Call();
+			switch (Agent.callStateID)
+			{
+				case Sipek.Common.EStateId.ACTIVE: Agent.ReleaseCall();
+					break;
+
+				case Sipek.Common.EStateId.ALERTING: Agent.ReleaseCall();
+					break;
+
+				case Sipek.Common.EStateId.INCOMING: Agent.AnswerCall();
+					break;
+
+				case Sipek.Common.EStateId.NULL:
+					Call();
+					break;
+			}
+		}
+
+		//Keys
 		private void Window_KeyDown_1(object sender, KeyEventArgs e)
 		{
+			dialDigit = "";
 			switch (e.Key)
 			{
 				case Key.Escape:
 
-					//1 Release call
-					if (null != Agent.callStateID && Agent.callStateID != EStateId.NULL)
-					{
-						ReleaseCall();
-					}
-
-					//2 Clear number
-					else if (!string.IsNullOrEmpty(Number.Content.ToString()))
+					//1 Clear number
+					if (!string.IsNullOrEmpty(Number.Content.ToString()))
 					{
 						Number.Tag = "";
 					}
 
-					//3 Hide
+					//2 Release call
 					else
-						Hide();
+						if (null != Agent.CallState && Agent.callStateID != EStateId.NULL)
+						{
+							Release();
+						}
 
+						//3 Hide
+						else
+							Hide();
 					break;
 
 				case Key.Back:
@@ -340,7 +440,7 @@ namespace SIPComm
 					int.TryParse(Number.Tag.ToString(), out num);
 					if (266344 == num)
 					{
-						Configure();
+						_configWindow.Show();
 					}
 					else
 					{
@@ -441,10 +541,22 @@ namespace SIPComm
 				case Key.D0:
 				case Key.NumPad0:
 					Number.Tag += "0";
+					dialDigit = "0";
+					break;
+
+				//*
+				case Key.Multiply:
+					Number.Tag += "*";
+					dialDigit = "*";
 					break;
 
 				default:
+					dialDigit = "";
 					break;
+			}
+			if (!string.IsNullOrEmpty(dialDigit))
+			{
+				DialDigit(dialDigit);
 			}
 		}
 
@@ -466,14 +578,20 @@ namespace SIPComm
 		{
 			BrushConverter converter = new BrushConverter();
 			((System.Windows.Controls.Control)(sender)).Background = converter.ConvertFromString("#FF24333C") as Brush;
-
-			Number.Tag += ((System.Windows.Controls.Control)(sender)).Tag.ToString();
 			dialDigit = ((System.Windows.Controls.Control)(sender)).Tag.ToString();
+			Number.Tag += dialDigit;
+			dialDigit = ((System.Windows.Controls.Control)(sender)).Tag.ToString();
+			DialDigit("dialDigit");
 		}
 
 		private void D_MouseUp(object sender, MouseButtonEventArgs e)
 		{
 			((System.Windows.Controls.Control)(sender)).Background = null;
+		}
+
+		private void CallControl_MouseLeave(object sender, MouseEventArgs e)
+		{
+			((System.Windows.Controls.Control)(sender)).BorderBrush = null;
 		}
 
 		private void Del_MouseEnter(object sender, MouseEventArgs e)
@@ -500,36 +618,7 @@ namespace SIPComm
 
 		private void Call_MouseDown(object sender, MouseButtonEventArgs e)
 		{
-			if (null == Agent.CallState) Call();
-
-			switch (Agent.CallState.StateId)
-			{
-				case EStateId.ACTIVE:
-				case EStateId.ALERTING: ReleaseCall();
-					break;
-
-				case EStateId.CONNECTING:
-					break;
-
-				case EStateId.HOLDING: HoldCall();
-					break;
-
-				case EStateId.IDLE:
-					break;
-
-				case EStateId.INCOMING: AnswerCall();
-					break;
-
-				case EStateId.NULL: Call();
-					break;
-
-				case EStateId.RELEASED:
-					break;
-
-				case EStateId.TERMINATED:
-					break;
-				default: return;
-			}
+			OnCallClick();
 
 			BrushConverter converter = new BrushConverter();
 			((System.Windows.Controls.Control)(sender)).Background = converter.ConvertFromString("#FF24333C") as Brush;
@@ -537,7 +626,12 @@ namespace SIPComm
 
 		private void Transfer_MouseDown(object sender, MouseButtonEventArgs e)
 		{
-			ReleaseCall();
+			Release();
+		}
+
+		private void btnHold_MouseDown(object sender, MouseButtonEventArgs e)
+		{
+			Hold();
 		}
 
 		#region Close button
@@ -570,29 +664,149 @@ namespace SIPComm
 
 		private void Window_Closing_1(object sender, System.ComponentModel.CancelEventArgs e)
 		{
-			Agent.ShutdownSIP();
-			_notifyIcon.Visible = false;
+			MainExit();
 		}
 
 		private void Window_Loaded_1(object sender, RoutedEventArgs e)
 		{
 			Number.Tag = "";
-
 			if (StartHidden)
 			{
 				this.Hide();
 			}
 		}
 
-		//Move window
+		private void ShowBalloonTips(Sipek.Common.EStateId callStateID)
+		{
+			switch (callStateID)
+			{
+				case Sipek.Common.EStateId.ACTIVE:
+					_notifyIcon.ShowBalloonTip(5, "Разговор", "Состояние звонка", System.Windows.Forms.ToolTipIcon.Info);
+					break;
+				case Sipek.Common.EStateId.ALERTING:
+					_notifyIcon.ShowBalloonTip(2, "Вызов!", "Состояние звонка", System.Windows.Forms.ToolTipIcon.Info);
+					break;
+				case Sipek.Common.EStateId.CONNECTING:
+					_notifyIcon.ShowBalloonTip(2, "Подключение...", "Состояние звонка", System.Windows.Forms.ToolTipIcon.Info);
+					break;
+				case Sipek.Common.EStateId.HOLDING:
+					_notifyIcon.ShowBalloonTip(10, "Удержание...", "Состояние звонка", System.Windows.Forms.ToolTipIcon.Warning);
+					break;
+				case Sipek.Common.EStateId.IDLE:
+					_notifyIcon.ShowBalloonTip(2, "Линия свободна...", "Состояние звонка", System.Windows.Forms.ToolTipIcon.Info);
+					break;
+				case Sipek.Common.EStateId.INCOMING:
+					_notifyIcon.ShowBalloonTip(2, "Входящий звонок!", "Состояние звонка", System.Windows.Forms.ToolTipIcon.Info);
+					break;
+				case Sipek.Common.EStateId.NULL:
+					break;
+				case Sipek.Common.EStateId.RELEASED:
+					_notifyIcon.ShowBalloonTip(1, "Звонок завершен!", "Состояние звонка", System.Windows.Forms.ToolTipIcon.Info);
+					break;
+				case Sipek.Common.EStateId.TERMINATED:
+					_notifyIcon.ShowBalloonTip(1, "Звонок завершен", "Состояние звонка", System.Windows.Forms.ToolTipIcon.Warning);
+					break;
+			}
+		}
+
+		private void DrawUIByCallState(Sipek.Common.EStateId StateId)
+		{
+			ShowBalloonTips(StateId);
+			BrushConverter converter = new BrushConverter();
+			switch (StateId)
+			{
+				case Sipek.Common.EStateId.ACTIVE:
+					_notifyIcon.Icon = SIPComm.Properties.Resources.Circle_Red;
+					_mainDispatcher.BeginInvoke(DispatcherPriority.Normal, new ThreadStart(delegate()
+					{
+						btnCall.Background = converter.ConvertFromString("#FF0B4E2F") as Brush;
+						btnHold.Background = null;
+					}));
+
+					break;
+
+				case Sipek.Common.EStateId.ALERTING:
+					_notifyIcon.Icon = SIPComm.Properties.Resources.Circle_Orange;
+					_mainDispatcher.BeginInvoke(DispatcherPriority.Normal, new ThreadStart(delegate()
+					{
+						btnCall.Background = converter.ConvertFromString("#FA890404") as Brush;
+						btnHold.Background = null;
+					}));
+					break;
+
+				case Sipek.Common.EStateId.CONNECTING:
+					_notifyIcon.Icon = SIPComm.Properties.Resources.Circle_Yellow;
+					_mainDispatcher.BeginInvoke(DispatcherPriority.Normal, new ThreadStart(delegate()
+					{
+						btnCall.Background = converter.ConvertFromString("#FA890404") as Brush;
+						btnHold.Background = null;
+					}));
+					break;
+
+				case Sipek.Common.EStateId.HOLDING:
+					_notifyIcon.Icon = SIPComm.Properties.Resources.Circle_Blue;
+					_mainDispatcher.BeginInvoke(DispatcherPriority.Normal, new ThreadStart(delegate()
+					{
+						btnCall.Background = null;//converter.ConvertFromString("#FA890404") as Brush;
+						btnHold.Background = converter.ConvertFromString("#FF0B4E2F") as Brush;
+					}));
+					break;
+
+				case Sipek.Common.EStateId.IDLE:
+					_notifyIcon.Icon = SIPComm.Properties.Resources.Circle_Yellow;
+					_mainDispatcher.BeginInvoke(DispatcherPriority.Normal, new ThreadStart(delegate()
+					{
+						btnCall.Background = null;// converter.ConvertFromString("#FA890404") as Brush;
+						btnHold.Background = null;// converter.ConvertFromString("#FF17517A") as Brush;
+					}));
+					break;
+
+				case Sipek.Common.EStateId.INCOMING:
+					_notifyIcon.Icon = SIPComm.Properties.Resources.Circle_Orange;
+					_mainDispatcher.BeginInvoke(DispatcherPriority.Normal, new ThreadStart(delegate()
+					{
+						btnCall.Background = converter.ConvertFromString("#FA890404") as Brush;
+						btnHold.Background = null;//converter.ConvertFromString("#FF17517A") as Brush;
+					}));
+					break;
+
+				case Sipek.Common.EStateId.NULL:
+					_notifyIcon.Icon = SIPComm.Properties.Resources.Circle_Green;
+					_mainDispatcher.BeginInvoke(DispatcherPriority.Normal, new ThreadStart(delegate()
+					{
+						btnCall.Background = null;
+						btnHold.Background = null;
+					}));
+					break;
+
+				case Sipek.Common.EStateId.RELEASED:
+					_notifyIcon.Icon = SIPComm.Properties.Resources.Circle_Yellow;
+					_mainDispatcher.BeginInvoke(DispatcherPriority.Normal, new ThreadStart(delegate()
+					{
+						btnCall.Background = null;//converter.ConvertFromString("#FA890404") as Brush;
+						btnHold.Background = null;//converter.ConvertFromString("#FF17517A") as Brush;
+					}));
+					break;
+
+				case Sipek.Common.EStateId.TERMINATED:
+					_notifyIcon.Icon = SIPComm.Properties.Resources.Circle_Yellow;
+					_mainDispatcher.BeginInvoke(DispatcherPriority.Normal, new ThreadStart(delegate()
+					{
+						btnCall.Background = null;//converter.ConvertFromString("#FA890404") as Brush;
+						btnHold.Background = null;//converter.ConvertFromString("#FF17517A") as Brush;
+					}));
+					break;
+			}
+		}
+
 		private void Account_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
 		{
 			this.DragMove();
 		}
 
-		private void btnHold_MouseDown(object sender, MouseButtonEventArgs e)
+		private void LabelSettings_MouseDown(object sender, MouseButtonEventArgs e)
 		{
-			HoldCall();
+			_configWindow.Show();
 		}
 	}
 }

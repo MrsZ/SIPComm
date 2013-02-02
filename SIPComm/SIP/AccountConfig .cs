@@ -6,7 +6,7 @@ namespace SIPComm
 {
 	public class AccountConfig : IAccount
 	{
-		private RegistryKey regKey = Registry.CurrentUser.CreateSubKey("Software\\SIPComm\\Account");
+		private RegistryKey regKey = Registry.CurrentUser.CreateSubKey("Software\\SIPComm");
 
 		#region Properties in Register
 
@@ -84,6 +84,12 @@ namespace SIPComm
 		public ETransportMode TransportMode
 		{
 			get { return (ETransportMode)regKey.GetValue("cfgAccountTransport", 0); }
+			set { regKey.SetValue("cfgAccountTransport", (int)value); }
+		}
+
+		public int TransportModeID
+		{
+			get { return (int)regKey.GetValue("cfgAccountTransport", 0); }
 			set { regKey.SetValue("cfgAccountTransport", (int)value); }
 		}
 

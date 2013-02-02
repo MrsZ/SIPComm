@@ -22,5 +22,13 @@ namespace SIPComm
 		{
 			InitializeComponent();
 		}
+
+		private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+		{
+			TabSettings.SelectedIndex--;
+			TabSettings.SelectedIndex++;
+			e.Cancel = true;
+			Hide();
+		}
 	}
 }
