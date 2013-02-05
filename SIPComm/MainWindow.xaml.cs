@@ -35,20 +35,20 @@ namespace SIPComm
 
 		public bool StartHidden
 		{
-			get { return (int)regKey.GetValue("StartHidden", 0) == 1 ? true : false; }
-			set { regKey.SetValue("StartHidden", (int)(value ? 1 : 0)); }
+			get { return regKey.GetValue("StartHidden", "1").ToString() == "1" ? true : false; }
+			set { regKey.SetValue("StartHidden", (value ? "1" : "0")); }
 		}
-		
+
 		public bool UseAgentUI
 		{
-			get { return (int)regKey.GetValue("UseAgentUI", 0) == 1 ? true : false; }
-			set { regKey.SetValue("UseAgentUI", (int)(value ? 1 : 0)); }
+			get { return regKey.GetValue("UseAgentUI", "1").ToString() == "1" ? true : false; }
+			set { regKey.SetValue("UseAgentUI", (value ? "1" : "0")); }
 		}
 
 		public bool SimpleClient
 		{
-			get { return (int)regKey.GetValue("SimpleClient", 0) == 1 ? true : false; }
-			set { regKey.SetValue("SimpleClient", (int)(value ? 1 : 0)); }
+			get { return regKey.GetValue("SimpleClient", "1").ToString() == "1" ? true : false; }
+			set { regKey.SetValue("SimpleClient", (value ? "1" : "0")); }
 		}
 
 		#endregion Properties
@@ -75,7 +75,7 @@ namespace SIPComm
 		{
 			if (SimpleClient)
 			{
-				return;
+				//return;
 			}
 
 			try
@@ -120,7 +120,10 @@ namespace SIPComm
 						}));
 					break;
 				case "exit" :
-					MainExit();
+					_mainDispatcher.BeginInvoke(DispatcherPriority.Normal, new ThreadStart(delegate()
+					{
+						MainExit();
+					}));					
 					break;
 				case "reload":
 					_mainDispatcher.BeginInvoke(DispatcherPriority.Normal, new ThreadStart(delegate()
@@ -138,7 +141,7 @@ namespace SIPComm
 		{
 			foreach( KeyValuePair<string, string> command in ParseCommand(message))
 			{
-				regKey.SetValue(command.Key, command.Value);
+				regKey.SetValue(command.Key, (object)command.Value);
 			}
 			_mainDispatcher.BeginInvoke(DispatcherPriority.Normal, new ThreadStart(delegate()
 			{
@@ -288,6 +291,7 @@ namespace SIPComm
 				case System.Windows.Forms.MouseButtons.Left:
 					if (2 == e.Clicks)
 					{
+						if (!UseAgentUI) return;
 						if (this.IsVisible)
 						{ this.Hide(); }
 						else
@@ -310,8 +314,12 @@ namespace SIPComm
 
 		private void MainExit()
 		{
+
 			_notifyIcon.Icon = SIPComm.Properties.Resources.Circle_Yellow;
-			Agent.ShutdownSIP();
+			if (null != Agent)
+			{
+				Agent.ShutdownSIP();
+			}
 			_notifyIcon.Icon = SIPComm.Properties.Resources.Circle_Grey;
 			_notifyIcon.Visible = false;
 			Environment.Exit(0);
@@ -670,7 +678,7 @@ namespace SIPComm
 		private void Window_Loaded_1(object sender, RoutedEventArgs e)
 		{
 			Number.Tag = "";
-			if (StartHidden)
+			if (StartHidden || !UseAgentUI)
 			{
 				this.Hide();
 			}

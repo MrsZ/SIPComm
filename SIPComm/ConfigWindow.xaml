@@ -121,6 +121,9 @@
 			</TabItem>
 			<TabItem Header="Other" Background="#FF4E6164"  BorderBrush="#FFABB5D3">
 				<Grid>
+					<Grid.DataContext>
+						<local:OtherSettings/>
+					</Grid.DataContext>
 					<Grid.RowDefinitions>
 						<RowDefinition Height="*"/>
 						<RowDefinition Height="*"/>
@@ -135,9 +138,9 @@
 						<ColumnDefinition Width="*"/>
 						<ColumnDefinition Width="*"/>
 					</Grid.ColumnDefinitions>
-					<CheckBox Content="Start Hidden" VerticalAlignment="Center"  Foreground="#FF1CBBDE" />
-					<CheckBox Content="Use Agent UI" VerticalAlignment="Center"  Foreground="#FF1CBBDE" Grid.Row="1" />
-					<CheckBox Content="Simple Client" VerticalAlignment="Center"  Foreground="#FF1CBBDE" Grid.Row="2" ToolTip="Ignore Socket Command" />
+					<CheckBox Content="Start Hidden" VerticalAlignment="Center"  Foreground="#FF1CBBDE" IsChecked="{Binding StartHidden, Mode=TwoWay}" />
+					<CheckBox Content="Use Agent UI" VerticalAlignment="Center"  Foreground="#FF1CBBDE" Grid.Row="1" IsChecked="{Binding UseAgentUI, Mode=TwoWay}" />
+					<CheckBox Content="Simple Client" VerticalAlignment="Center"  Foreground="#FF1CBBDE" Grid.Row="2" ToolTip="Ignore Socket Command" IsChecked="{Binding SimpleClient, Mode=TwoWay}" />
 				</Grid>
 			</TabItem>
 		</TabControl>

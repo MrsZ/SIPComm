@@ -24,20 +24,20 @@ namespace SIPComm
 
 		public bool CFUFlag
 		{
-			get { return (int)regKey.GetValue("cfgCFUFlag", 0) == 1 ? true : false; }
-			set { regKey.SetValue("cfgCFUFlag", (int)(value ? 1 : 0)); }
+			get { return regKey.GetValue("CFUFlag", "0").ToString() == "1" ? true : false; }
+			set { regKey.SetValue("CFUFlag", (value ? "1" : "0")); }
 		}
 
 		public string CFUNumber
 		{
-			get { return (string)regKey.GetValue("cfgCFUNumber", ""); }
-			set { regKey.SetValue("cfgCFUNumber", (string)value); }
+			get { return (string)regKey.GetValue("CFUNumber", ""); }
+			set { regKey.SetValue("CFUNumber", (string)value); }
 		}
 
 		public bool CFNRFlag
 		{
-			get { return (int)regKey.GetValue("cfgCFNRFlag", 0) == 1 ? true : false; }
-			set { regKey.SetValue("cfgCFNRFlag", (int)(value ? 1 : 0)); }
+			get { return regKey.GetValue("cfgCFNRFlag", "0").ToString() == "1" ? true : false; }
+			set { regKey.SetValue("cfgCFNRFlag", (value ? "1" : "0")); }
 		}
 
 		public string CFNRNumber
@@ -48,20 +48,20 @@ namespace SIPComm
 
 		public bool DNDFlag
 		{
-			get { return (int)regKey.GetValue("cfgDNDFlag", 0) == 1 ? true : false; }
-			set { regKey.SetValue("cfgDNDFlag", (int)(value ? 1 : 0)); }
+			get { return regKey.GetValue("cfgDNDFlag", "0").ToString() == "1" ? true : false; }
+			set { regKey.SetValue("cfgDNDFlag", (value ? "1" : "0")); }
 		}
 
 		public bool AAFlag
 		{
-			get { return (int)regKey.GetValue("cfgAAFlag", 0) == 1 ? true : false; }
-			set { regKey.SetValue("cfgAAFlag", (int)(value ? 1 : 0)); }
+			get { return regKey.GetValue("cfgAAFlag", "0").ToString() == "1" ? true : false; }
+			set { regKey.SetValue("cfgAAFlag", (value ? "1" : "0")); }
 		}
 
 		public bool CFBFlag
 		{
-			get { return (int)regKey.GetValue("cfgCFBFlag", 0) == 1 ? true : false; }
-			set { regKey.SetValue("cfgCFBFlag", (int)(value ? 1 : 0)); }
+			get { return regKey.GetValue("cfgCFBFlag", "0").ToString() == "1" ? true : false; }
+			set { regKey.SetValue("cfgCFBFlag", (value ? "1" : "0")); }
 		}
 
 		public string CFBNumber
@@ -72,21 +72,21 @@ namespace SIPComm
 
 		public int SIPPort
 		{
-			get { return (int)regKey.GetValue("cfgSipPort", 5070); }
-			set { regKey.SetValue("cfgSipPort", (int)value); }
+			get { return int.Parse(regKey.GetValue("SipPort", "5060").ToString()); }
+			set { regKey.SetValue("SipPort", value.ToString()); }
 		}
 
 		public bool PublishEnabled
 		{
 			get
 			{
-				SipConfigStruct.Instance.publishEnabled = (int)regKey.GetValue("cfgPublishEnabled", 0) == 1 ? true : false; ;
+				SipConfigStruct.Instance.publishEnabled = regKey.GetValue("PublishEnabled", "1").ToString() == "1" ? true : false;
 				return SipConfigStruct.Instance.publishEnabled;
 			}
 			set
 			{
 				SipConfigStruct.Instance.publishEnabled = value;
-				regKey.SetValue("cfgPublishEnabled", (int)(value ? 1 : 0)); 
+				regKey.SetValue("PublishEnabled", (value ? "1" : "0")); 
 			}
 		}
 
@@ -94,38 +94,38 @@ namespace SIPComm
 		{
 			get
 			{
-				SipConfigStruct.Instance.stunServer = (string)regKey.GetValue("cfgStunServerAddress", "");
+				SipConfigStruct.Instance.stunServer = (string)regKey.GetValue("StunServerAddress", "");
 				return SipConfigStruct.Instance.stunServer;
 			}
 			set
 			{
-				regKey.SetValue("cfgSipPublishEnabled", (string)value); 
+				regKey.SetValue("SipPublishEnabled", (string)value); 
 				SipConfigStruct.Instance.stunServer = value;
 			}
 		}
 
 		public EDtmfMode DtmfMode
 		{
-			get { return (EDtmfMode)regKey.GetValue("cfgDtmfMode", 0); }
-			set { regKey.SetValue("cfgDtmfMode", (int)value); }
+			get { return (EDtmfMode)int.Parse(regKey.GetValue("DtmfMode", "0").ToString()); }
+			set { regKey.SetValue("DtmfMode", ((int)value).ToString()); }
 		}
 
 		public int DtmfModeID
 		{
-			get { return (int)regKey.GetValue("cfgDtmfMode", 0); }
-			set { regKey.SetValue("cfgDtmfMode", (int)value); }
+			get { return int.Parse(regKey.GetValue("DtmfMode", "0").ToString()); }
+			set { regKey.SetValue("DtmfMode", ((int)value).ToString()); }
 		}
 
 		public int Expires
 		{
 			get
 			{
-				SipConfigStruct.Instance.expires = (int)regKey.GetValue("cfgRegistrationTimeout", 3600);
+				SipConfigStruct.Instance.expires = int.Parse(regKey.GetValue("RegistrationTimeout", "3600").ToString());
 				return SipConfigStruct.Instance.expires;
 			}
 			set
 			{
-				regKey.SetValue("cfgRegistrationTimeout", (int)value);
+				regKey.SetValue("RegistrationTimeout", ((int)value).ToString());
 				SipConfigStruct.Instance.expires = value;
 			}
 		}
@@ -134,12 +134,12 @@ namespace SIPComm
 		{
 			get
 			{
-				SipConfigStruct.Instance.ECTail = (int)regKey.GetValue("cfgECTail", 200);
+				SipConfigStruct.Instance.ECTail = int.Parse(regKey.GetValue("ECTail", "200").ToString());
 				return SipConfigStruct.Instance.ECTail;
 			}
 			set
 			{
-				regKey.SetValue("cfgECTail", (int)value);
+				regKey.SetValue("ECTail", ((int)value).ToString());
 				SipConfigStruct.Instance.ECTail = value;
 			}
 		}
@@ -148,12 +148,12 @@ namespace SIPComm
 		{
 			get
 			{
-				SipConfigStruct.Instance.VADEnabled = (int)regKey.GetValue("cfgVAD", 1) == 1 ? true : false;
+				SipConfigStruct.Instance.VADEnabled = regKey.GetValue("VAD", "1").ToString() == "1" ? true : false;
 				return SipConfigStruct.Instance.VADEnabled;
 			}
 			set
 			{
-				regKey.SetValue("cfgVAD", (int)(value ? 1 : 0));
+				regKey.SetValue("VAD", (value ? "1" : "0"));
 				SipConfigStruct.Instance.VADEnabled = value;
 			}
 		}
@@ -162,20 +162,20 @@ namespace SIPComm
 		{
 			get
 			{
-				SipConfigStruct.Instance.nameServer = (string)regKey.GetValue("cfgNameServer", "");
+				SipConfigStruct.Instance.nameServer = (string)regKey.GetValue("NameServer", "");
 				return SipConfigStruct.Instance.nameServer;
 			}
 			set
 			{
-				regKey.SetValue("cfgNameServer", (string)value);
+				regKey.SetValue("NameServer", (string)value);
 				SipConfigStruct.Instance.nameServer = value;
 			}
 		}
 
 		public int DefaultAccountIndex
 		{
-			get { return (int)regKey.GetValue("cfgAccountDefault", 0); }
-			set { regKey.SetValue("cfgAccountDefault", (int)value); }
+			get { return int.Parse(regKey.GetValue("AccountDefault", "0").ToString()); }
+			set { regKey.SetValue("AccountDefault", ((int)value).ToString()); }
 		}
 
 		public List<IAccount> Accounts
@@ -194,8 +194,8 @@ namespace SIPComm
 
 		public List<string> CodecList
 		{
-			get { return (List<string>)regKey.GetValue("cfgCodecList", new List<string>()); }
-			set { regKey.SetValue("cfgCodecList", (List<string>)value); }
+			get { return (List<string>)regKey.GetValue("CodecList", new List<string>()); }
+			set { regKey.SetValue("CodecList", (List<string>)value); }
 		}
 
 		#endregion Properties

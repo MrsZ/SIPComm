@@ -17,80 +17,80 @@ namespace SIPComm
 
 		public bool Enabled
 		{
-			get { return (int)regKey.GetValue("cfgAccountEnabled", 1) == 1 ? true : false; }
-			set { regKey.SetValue("cfgAccountEnabled", (int)(value ? 1 : 0)); }
+			get { return regKey.GetValue("AccountEnabled", "1").ToString() == "1" ? true : false; }
+			set { regKey.SetValue("AccountEnabled", (value ? "1" : "0")); }
 		}
 
 		public int Index
 		{
-			get { return (int)regKey.GetValue("cfgAccountIndex", 0); }
-			set { regKey.SetValue("cfgAccountIndex", (int)value); }
+			get { return int.Parse(regKey.GetValue("AccountIndex", "0").ToString()); }
+			set { regKey.SetValue("AccountIndex", value.ToString()); }
 		}
 
 		public string AccountName
 		{
-			get { return (string)regKey.GetValue("cfgAccountName", "Default"); }
-			set { regKey.SetValue("cfgAccountName", (string)value); }
+			get { return (string)regKey.GetValue("AccountName", "Default"); }
+			set { regKey.SetValue("AccountName", (string)value); }
 		}
 
 		public string HostName
 		{
-			get { return (string)regKey.GetValue("cfgAccountAddress", "10.10.10.1:5070"); }
-			set { regKey.SetValue("cfgAccountAddress", (string)value); }
+			get { return (string)regKey.GetValue("AccountAddress", ""); }
+			set { regKey.SetValue("AccountAddress", (string)value); }
 		}
 
 		public string Id
 		{
-			get { return (string)regKey.GetValue("cfgAccountID", "1019"); }
-			set { regKey.SetValue("cfgAccountID", (string)value); }
+			get { return (string)regKey.GetValue("AccountID", "1"); }
+			set { regKey.SetValue("AccountID", (string)value); }
 		}
 
 		public string UserName
 		{
-			get { return (string)regKey.GetValue("cfgAccountUsername", "1019"); }
-			set { regKey.SetValue("cfgAccountUsername", (string)value); }
+			get { return (string)regKey.GetValue("AccountUsername", "1"); }
+			set { regKey.SetValue("AccountUsername", (string)value); }
 		}
 
 		public string Password
 		{
-			get { return (string)regKey.GetValue("cfgAccountPassword", "it-sfera.fs"); }
-			set { regKey.SetValue("cfgAccountPassword", (string)value); }
+			get { return (string)regKey.GetValue("AccountPassword", ""); }
+			set { regKey.SetValue("AccountPassword", (string)value); }
 		}
 
 		public string DisplayName
 		{
-			get { return (string)regKey.GetValue("cfgAccountDisplayName", "1019"); }
-			set { regKey.SetValue("cfgAccountDisplayName", (string)value); }
+			get { return (string)regKey.GetValue("AccountDisplayName", "1"); }
+			set { regKey.SetValue("AccountDisplayName", (string)value); }
 		}
 
 		public string DomainName
 		{
-			get { return (string)regKey.GetValue("cfgAccountDomain", "10.10.10.1"); }
-			set { regKey.SetValue("cfgAccountDomain", (string)value); }
+			get { return (string)regKey.GetValue("AccountDomain", ""); }
+			set { regKey.SetValue("AccountDomain", (string)value); }
 		}
 
 		public int RegState
 		{
-			get { return (int)regKey.GetValue("cfgAccountState", 0); }
-			set { regKey.SetValue("cfgAccountState", (int)value); }
+			get { return int.Parse(regKey.GetValue("AccountState", "0").ToString()); }
+			set { regKey.SetValue("AccountState", value.ToString()); }
 		}
 
 		public string ProxyAddress
 		{
-			get { return (string)regKey.GetValue("cfgAccountProxyAddress", ""); }
-			set { regKey.SetValue("cfgAccountProxyAddress", (string)value); }
+			get { return (string)regKey.GetValue("AccountProxyAddress", ""); }
+			set { regKey.SetValue("AccountProxyAddress", (string)value); }
 		}
 
 		public ETransportMode TransportMode
 		{
-			get { return (ETransportMode)regKey.GetValue("cfgAccountTransport", 0); }
-			set { regKey.SetValue("cfgAccountTransport", (int)value); }
+			get { return (ETransportMode)int.Parse(regKey.GetValue("AccountTransport", "0").ToString()); }
+			set { regKey.SetValue("AccountTransport", ((int)value).ToString()); }
 		}
 
 		public int TransportModeID
 		{
-			get { return (int)regKey.GetValue("cfgAccountTransport", 0); }
-			set { regKey.SetValue("cfgAccountTransport", (int)value); }
+			get { return int.Parse(regKey.GetValue("AccountTransport", "0").ToString()); }
+			set { regKey.SetValue("AccountTransport", value.ToString()); }
 		}
 
 		#endregion Properties in Register

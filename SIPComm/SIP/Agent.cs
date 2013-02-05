@@ -133,7 +133,11 @@ namespace SIPComm
 			SipekResources.Messenger.MessageReceived -= MessageReceived;
 			//SipekResources.Messenger.BuddyStatusChanged -= onBuddyStateChanged;
 			SipekResources.StackProxy.MessageWaitingIndication -= MessageWaiting;
-			SipekResources.CallManager.Shutdown();
+			try
+			{
+				SipekResources.CallManager.Shutdown();
+			}
+			catch { }
 			OnAccountStateChange(0);
 		}
 
