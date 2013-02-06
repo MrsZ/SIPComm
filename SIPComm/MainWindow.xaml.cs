@@ -131,6 +131,13 @@ namespace SIPComm
 						ReloadSIP();
 					}));
 					break;
+				case "hangup":
+				case "release":
+					_mainDispatcher.BeginInvoke(DispatcherPriority.Normal, new ThreadStart(delegate()
+					{
+						Agent.ReleaseCall();
+					}));
+					break;
 				default:
 					ExecuteCustomReceivedCommand(message);
 					break;
@@ -253,6 +260,7 @@ namespace SIPComm
 			_notifyIcon = new System.Windows.Forms.NotifyIcon();
 			_notifyIcon.Visible = true;
 			_notifyIcon.ContextMenu = new System.Windows.Forms.ContextMenu();
+			//_notifyIcon.ContextMenu.MenuItems.Add(new System.Windows.Forms.MenuItem("Show/Hide", new EventHandler(ShowHideItem_onClick)));
 			_notifyIcon.ContextMenu.MenuItems.Add(new System.Windows.Forms.MenuItem("Reload SIP", new EventHandler(ReloadSIPItem_onClick)));
 			_notifyIcon.ContextMenu.MenuItems.Add(new System.Windows.Forms.MenuItem("Settings", new EventHandler(SettingsItem_onClick)));
 			_notifyIcon.ContextMenu.MenuItems.Add(new System.Windows.Forms.MenuItem("Exit", new EventHandler(ExitItem_onClick)));
@@ -261,6 +269,14 @@ namespace SIPComm
 			_notifyIcon.MouseDoubleClick += notifyIcon_MouseClick;
 			_notifyIcon.Visible = true;
 			_notifyIcon.Icon = SIPComm.Properties.Resources.Circle_Grey;
+		}
+
+		private void ShowHideItem_onClick(object sender, EventArgs e)
+		{
+			if (this.IsVisible)
+			{ this.Hide(); }
+			else
+			{ this.Show(); }
 		}
 
 		private void ReloadSIPItem_onClick(object sender, EventArgs e)
@@ -281,9 +297,7 @@ namespace SIPComm
 		{
 			MainExit();			
 		}
-
-		
-
+				
 		private void notifyIcon_MouseClick(object sender, System.Windows.Forms.MouseEventArgs e)
 		{
 			switch (e.Button)
