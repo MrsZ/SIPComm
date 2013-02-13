@@ -1,15 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
+using Microsoft.Win32;
+using System.Security.AccessControl;
+using WaveLib.AudioMixer;
 
 namespace SIPComm
 {
@@ -18,17 +11,23 @@ namespace SIPComm
 	/// </summary>
 	public partial class ConfigWindow : Window
 	{
-		public ConfigWindow()
+		private RegistryKey regKey = Registry.CurrentUser.CreateSubKey("Software\\SIPComm");
+		Agent _agent;
+		Mixers mMixers;
+		public ConfigWindow(Agent agent)
 		{
+			_agent = agent;
+			mMixers = new Mixers();
 			InitializeComponent();
+			regKey.SetAccessControl(new RegistrySecurity());
 		}
 
 		private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
 		{
 			TabSettings.SelectedIndex--;
 			TabSettings.SelectedIndex++;
-			e.Cancel = true;
-			Hide();
-		}
+			//e.Cancel = true;
+			//Hide();
+		}		
 	}
 }

@@ -119,6 +119,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Audio.cs" />
     <Compile Include="ConfigWindow.xaml.cs">
       <DependentUpon>ConfigWindow.xaml</DependentUpon>
     </Compile>
@@ -244,9 +245,8 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy "$(TargetDir)$(TargetFileName)"  "E:\Terrasoft\3.3.2.173\Bin\WebitelClient\$(TargetFileName)" /y
-copy "$(TargetDir)$(TargetFileName)"  "E:\Terrasoft\3.4.0.130\Bin\WebitelClient\$(TargetFileName)" /y
-copy "$(TargetDir)$(TargetFileName)"  "\\10.10.10.200\smb\TSWebitel\WebitelClient\$(TargetFileName)" /y</PostBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

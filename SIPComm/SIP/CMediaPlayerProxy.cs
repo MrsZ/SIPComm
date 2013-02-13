@@ -8,6 +8,7 @@ namespace SIPComm
 	public class CMediaPlayerProxy : IMediaProxyInterface
 	{
 		SoundPlayer player = new SoundPlayer();
+		
 
 		#region Methods
 
@@ -33,7 +34,6 @@ namespace SIPComm
 				default:
 					break;
 			}
-
 			player.Stream = snd;
 			player.Load();
 			player.PlayLooping();

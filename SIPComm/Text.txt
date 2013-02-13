@@ -6,3 +6,8 @@ _mainDispatcher.BeginInvoke(DispatcherPriority.Normal, new ThreadStart(delegate(
 
 
 #FF00090F
+
+
+copy "$(TargetDir)$(TargetFileName)"  "E:\Terrasoft\3.3.2.173\Bin\WebitelClient\$(TargetFileName)" /y
+copy "$(TargetDir)$(TargetFileName)"  "E:\Terrasoft\3.4.0.130\Bin\WebitelClient\$(TargetFileName)" /y
+copy "$(TargetDir)$(TargetFileName)"  "\\10.10.10.200\smb\TSWebitel\WebitelClient\$(TargetFileName)" /y

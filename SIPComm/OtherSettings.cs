@@ -3,6 +3,7 @@ using Sipek.Common;
 using Sipek.Sip;
 using System.Collections.Generic;
 using System.Security.AccessControl;
+using WaveLib.AudioMixer;
 
 namespace SIPComm
 {
@@ -36,5 +37,30 @@ namespace SIPComm
 		}
 
 		#endregion Properties
+
+		public int SelectedOutput
+		{
+			get { return int.Parse(regKey.GetValue("SelectedOutput", "0").ToString()); }
+			set { regKey.SetValue("SelectedOutput", value); }
+		}
+
+		public int SelectedInput
+		{
+			get { return int.Parse(regKey.GetValue("SelectedInput", "0").ToString()); }
+			set { regKey.SetValue("SelectedInput", value); }
+		}
+
+		public string OutputName
+		{
+			get { return regKey.GetValue("OutputName", "Default").ToString(); }
+			set { regKey.SetValue("OutputName", value); }
+		}
+
+		public string InputName
+		{
+			get { return regKey.GetValue("InputName", "Default").ToString(); }
+			set { regKey.SetValue("InputName", value); }
+		}
+
 	}
 }

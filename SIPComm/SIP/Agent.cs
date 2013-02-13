@@ -21,6 +21,16 @@ namespace SIPComm
 
 		#region SIP Properties
 
+		public string OutputName
+		{
+			get { return regKey.GetValue("OutputName", "Default").ToString(); }
+		}
+
+		public string InputName
+		{
+			get { return regKey.GetValue("InputName", "Default").ToString(); }
+		}
+
 		public SipekResources SipekResources
 		{
 			get { return _resources; }
@@ -111,10 +121,16 @@ namespace SIPComm
 			SipekResources.CallManager.onUserDialDigit(callState.Session, dialDigit, SipekResources.Configurator.DtmfMode);
 		}
 
-		public void SetSoundDevice(string PlaybackDeviceID, string RecordingDeviceID)
+		public void SetSoundDevice()
 		{
-			SipekResources.StackProxy.setSoundDevice(PlaybackDeviceID, RecordingDeviceID);
+			SipekResources.StackProxy.setSoundDevice(OutputName, InputName);
 		}
+
+		public void SendMessage(string address, string message)
+		{
+			SipekResources.Messenger.sendMessage(address, message);
+		}
+
 		#endregion Call Operations
 
 		public void RegisterAccount()
@@ -122,17 +138,13 @@ namespace SIPComm
 			SubscribeEvents();
 			int s = SipekResources.CallManager.Initialize();
 			SipekResources.Registrar.registerAccounts();
+			//SetSoundDevice();
 			callState = SipekResources.CallManager.getCall(-1);
 		}
 
 		public void ShutdownSIP()
 		{
-			SipekResources.CallManager.CallStateRefresh -= CallStateRefresh;
-			SipekResources.CallManager.IncomingCallNotification -= IncomingCall;
-			SipekResources.Registrar.AccountStateChanged -= AccountStateChange;
-			SipekResources.Messenger.MessageReceived -= MessageReceived;
-			//SipekResources.Messenger.BuddyStatusChanged -= onBuddyStateChanged;
-			SipekResources.StackProxy.MessageWaitingIndication -= MessageWaiting;
+			UnsubscribeEvents();
 			try
 			{
 				SipekResources.CallManager.Shutdown();
@@ -144,6 +156,17 @@ namespace SIPComm
 		public void UnregisterAccount()
 		{
 			SipekResources.Registrar.unregisterAccounts();
+		}
+
+		private void UnsubscribeEvents()
+		{
+			SipekResources.CallManager.CallStateRefresh -= new DCallStateRefresh(CallStateRefresh);
+			SipekResources.CallManager.IncomingCallNotification -= new DIncomingCallNotification(IncomingCall);
+			SipekResources.Registrar.AccountStateChanged -= new DAccountStateChanged(AccountStateChange);
+
+			SipekResources.Messenger.MessageReceived -= new DMessageReceived(MessageReceived);
+			//SipekResources.Messenger.BuddyStatusChanged -= BuddyStateChanged;
+			SipekResources.StackProxy.MessageWaitingIndication -= new DMessageWaitingNotification(MessageWaiting);
 		}
 
 		private void SubscribeEvents()

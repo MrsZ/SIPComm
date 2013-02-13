@@ -9,6 +9,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
 
+
 namespace SIPComm
 {
 	/// <summary>
@@ -57,16 +58,17 @@ namespace SIPComm
 		{
 			regKey.SetAccessControl(new RegistrySecurity());
 			InitializeComponent();
-			Initialize();
+			Initialize();			
 		}
 
 		private void Initialize()
 		{
 			InitializeAgent();
 			InitializeNotifyIcon();
-			_chatWindow = new ChatWindow(this);
-			_configWindow = new ConfigWindow();
+	//		_chatWindow = new ChatWindow(Agent);
+			//_configWindow = new ConfigWindow(Agent);
 			InitializeListener();
+//			_chatWindow.Show();
 		}
 
 		#region InitializeListener
@@ -290,6 +292,16 @@ namespace SIPComm
 
 		private void SettingsItem_onClick(object sender, EventArgs e)
 		{
+			ShowSettings();
+		}
+
+		private void ShowSettings()
+		{
+			if (null != _configWindow && _configWindow.IsLoaded)
+			{
+				return;
+			}
+			_configWindow = new ConfigWindow(Agent);
 			_configWindow.Show();
 		}
 
@@ -460,14 +472,7 @@ namespace SIPComm
 					}
 					int num;
 					int.TryParse(Number.Tag.ToString(), out num);
-					if (266344 == num)
-					{
-						_configWindow.Show();
-					}
-					else
-					{
-						Call();
-					}
+					Call();
 					break;
 
 				//1
@@ -828,7 +833,7 @@ namespace SIPComm
 
 		private void LabelSettings_MouseDown(object sender, MouseButtonEventArgs e)
 		{
-			_configWindow.Show();
+			ShowSettings();
 		}
 	}
 }

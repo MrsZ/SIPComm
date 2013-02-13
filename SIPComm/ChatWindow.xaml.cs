@@ -8,12 +8,12 @@ namespace SIPComm
 	/// </summary>
 	public partial class ChatWindow : Window
 	{
-		private MainWindow _parentWindow;
+		private Agent _agent;
 
-		public ChatWindow(MainWindow parentWindow)
+		public ChatWindow(Agent agent)
 		{
 			InitializeComponent();
-			_parentWindow = parentWindow;
+			_agent = agent;
 		}
 
 		private void MessageBox_KeyDown(object sender, KeyEventArgs e)
@@ -21,6 +21,7 @@ namespace SIPComm
 			if (Key.Enter == e.Key)
 			{
 				this.ChatBox.Text += this.MessageBox.Text + "\n";
+				_agent.SendMessage("sip:1020@10.10.10.1:5070", this.MessageBox.Text);
 				this.MessageBox.Text = "";
 			}
 		}
